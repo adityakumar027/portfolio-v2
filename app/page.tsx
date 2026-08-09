@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { gsap } from "gsap";
 import { useScrollAnimation } from "./hooks/useScrollAnimation";
 import CustomCursor from "./components/CustomCursor";
+import ScrollProgress from "./components/ScrollProgress";
 import HorizontalProjects from "./components/HorizontalProjects";
 import { Playfair_Display } from "next/font/google";
 
@@ -349,6 +350,7 @@ export default function Home() {
       </footer>
 
       <CustomCursor />
+      <ScrollProgress />
     </>
   );
 }

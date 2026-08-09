@@ -164,6 +164,38 @@ main, .site-footer { position: relative; z-index: 2; }
 
 .reveal { opacity: 0; transform: translateY(40px); }
 
+/* --- SCROLL PROGRESS INDICATOR --- */
+.scroll-progress {
+  position: fixed;
+  right: clamp(24px, 4.5vw, 72px);
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2px;
+  height: 70vh;
+  background: var(--soft-line);
+  z-index: 50;
+}
+.scroll-progress-fill {
+  width: 100%;
+  height: 0%;
+  background: var(--accent);
+  box-shadow: 0 0 10px var(--glow);
+  transition: height 0.1s linear;
+}
+.scroll-progress-arrow {
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--accent);
+  font-size: 14px;
+  animation: pulse-down 2s ease-in-out infinite;
+}
+@keyframes pulse-down {
+  0%, 100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+  50% { transform: translateX(-50%) translateY(6px); opacity: 0.5; }
+}
+
 /* --- GLASS PANEL SYSTEM --- */
 .glass-panel {
   background: var(--surface-glass);
@@ -360,6 +392,7 @@ main, .site-footer { position: relative; z-index: 2; }
 /* RESPONSIVE DESIGN */
 @media (max-width: 980px) {
   .webgl-layer { display: none; }
+  .scroll-progress { display: none; }
   .site-header { padding-inline: 24px; }
   .nav-links, .resume-link { display: none; }
   .menu-toggle { display: block; border: 1px solid var(--line); padding: 9px 12px; color: var(--muted); font: 500 9px var(--mono); }
