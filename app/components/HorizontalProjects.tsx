@@ -17,7 +17,6 @@ export default function HorizontalProjects({ projects }: { projects: any[] }) {
     const section = sectionRef.current;
     const scrollWrapper = scrollWrapperRef.current;
 
-    // Calculate how far to move based on the wrapper's width vs the viewport
     const getScrollAmount = () => -(scrollWrapper.scrollWidth - window.innerWidth + 120);
 
     const tween = gsap.to(scrollWrapper, {
@@ -30,6 +29,18 @@ export default function HorizontalProjects({ projects }: { projects: any[] }) {
         pin: true,
         scrub: 1,
         invalidateOnRefresh: true,
+        onUpdate: (self) => {
+          // Update scroll dots
+          const dots = section.querySelectorAll(".project-dot");
+          const progress = self.progress;
+          const activeIdx = Math.min(
+            Math.floor(progress * dots.length),
+            dots.length - 1
+          );
+          dots.forEach((dot, i) => {
+            dot.classList.toggle("active", i === activeIdx);
+          });
+        },
       },
     });
 
@@ -38,6 +49,18 @@ export default function HorizontalProjects({ projects }: { projects: any[] }) {
       ScrollTrigger.getAll().forEach(t => t.kill());
     };
   }, []);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    const card = e.currentTarget;
+    const rect = card.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    card.style.transform = `perspective(1000px) rotateY(${x * 8}deg) rotateX(${-y * 8}deg) translateY(-10px)`;
+  };
+
+  const handleMouseLeave = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.currentTarget.style.transform = "";
+  };
 
   return (
     <section ref={sectionRef} className="horizontal-section" id="work">
@@ -56,8 +79,11 @@ export default function HorizontalProjects({ projects }: { projects: any[] }) {
               rel="noreferrer" 
               key={project.index}
               style={{ zIndex: projects.length - idx }}
+              onMouseMove={handleMouseMove}
+              onMouseLeave={handleMouseLeave}
             >
               <span className="card-number">0{idx + 1}</span>
+              <div className="card-mockup" aria-hidden="true" />
               <div className="card-inner">
                 <div className="project-top">
                   <p>{project.type}</p>
@@ -74,6 +100,11 @@ export default function HorizontalProjects({ projects }: { projects: any[] }) {
             </a>
           ))}
         </div>
+      </div>
+      <div className="project-dots" aria-hidden="true">
+        {projects.map((_, i) => (
+          <div className={`project-dot ${i === 0 ? 'active' : ''}`} key={i} />
+        ))}
       </div>
     </section>
   );

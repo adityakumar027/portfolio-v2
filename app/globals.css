@@ -147,6 +147,11 @@ main, .site-footer { position: relative; z-index: 2; }
 .project-description { max-width: 620px; margin: 0; color: var(--muted); font-size: 15px; line-height: 1.65; }
 .project-meta { margin-top: auto; padding-top: 30px; display: flex; flex-direction: column; gap: 10px; color: var(--dim); font: 500 8px var(--mono); letter-spacing: 0.06em; text-transform: uppercase; }
 .project-meta span:first-child { color: #c6cbc7; }
+.card-mockup { width: 100%; height: 40%; min-height: 120px; background: linear-gradient(135deg, rgba(113,245,212,0.05), rgba(232,168,56,0.03)); border-radius: 8px; border: 1px solid var(--soft-line); position: relative; overflow: hidden; margin-bottom: 24px; }
+.card-mockup::after { content: ""; position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px); background-size: 20px 20px; }
+.project-dots { display: flex; gap: 8px; justify-content: center; margin-top: 24px; }
+.project-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--dim); transition: background 0.3s ease, box-shadow 0.3s ease; }
+.project-dot.active { background: var(--accent); box-shadow: 0 0 10px var(--glow); }
 
 .about { padding-bottom: clamp(52px, 4.5vw, 74px); background: rgba(7, 9, 8, 0.96); }
 .about-layout { display: grid; grid-template-columns: minmax(0, .82fr) minmax(0, 1.18fr); gap: 5vw; margin-left: 13%; align-items: start; }
