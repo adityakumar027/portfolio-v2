@@ -57,6 +57,7 @@ export default function HorizontalProjects({ projects }: { projects: any[] }) {
               key={project.index}
               style={{ zIndex: projects.length - idx }}
             >
+              <span className="card-number">0{idx + 1}</span>
               <div className="card-inner">
                 <div className="project-top">
                   <p>{project.type}</p>
@@ -69,6 +70,7 @@ export default function HorizontalProjects({ projects }: { projects: any[] }) {
                   <span>{project.stack}</span>
                 </div>
               </div>
+              <div className="card-arrow" aria-hidden="true">&#8599;</div>
             </a>
           ))}
         </div>

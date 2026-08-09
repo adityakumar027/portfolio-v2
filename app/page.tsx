@@ -298,7 +298,11 @@ export default function Home() {
 
         <HorizontalProjects projects={projects} />
 
-        <section className="section about" id="skills" ref={skillsRef}>
+        <section className="section about section-depth" id="skills" ref={skillsRef}>
+          <div className="aurora-bg" aria-hidden="true">
+            <div className="aurora-orb-1" />
+            <div className="aurora-orb-2" />
+          </div>
           <div className="section-heading reveal">
             <p className="section-index">PROFILE &amp; SKILLS</p>
             <h2>Strong foundations.<br />Production range.</h2>

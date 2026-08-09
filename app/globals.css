@@ -155,6 +155,136 @@ main, .site-footer { position: relative; z-index: 2; }
 
 .reveal { opacity: 0; transform: translateY(40px); }
 
+/* --- AURORA GRADIENT BACKGROUND --- */
+.aurora-bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+.aurora-bg::before,
+.aurora-bg::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.5;
+  will-change: transform;
+}
+.aurora-bg::before {
+  width: 60vw;
+  height: 60vw;
+  top: -20%;
+  left: -10%;
+  background: radial-gradient(circle, rgba(232, 100, 200, 0.45), rgba(120, 80, 220, 0.3), transparent 70%);
+  animation: aurora-drift-1 18s ease-in-out infinite alternate;
+}
+.aurora-bg::after {
+  width: 50vw;
+  height: 50vw;
+  bottom: -25%;
+  right: -15%;
+  background: radial-gradient(circle, rgba(113, 245, 212, 0.4), rgba(80, 180, 255, 0.3), transparent 70%);
+  animation: aurora-drift-2 22s ease-in-out infinite alternate;
+}
+.aurora-orb-1 {
+  position: absolute;
+  width: 45vw;
+  height: 45vw;
+  top: 30%;
+  right: 10%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(232, 168, 56, 0.35), rgba(200, 80, 120, 0.2), transparent 70%);
+  filter: blur(100px);
+  animation: aurora-drift-3 20s ease-in-out infinite alternate;
+}
+.aurora-orb-2 {
+  position: absolute;
+  width: 40vw;
+  height: 40vw;
+  bottom: 10%;
+  left: 20%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(80, 200, 180, 0.35), rgba(113, 245, 212, 0.2), transparent 70%);
+  filter: blur(110px);
+  animation: aurora-drift-4 24s ease-in-out infinite alternate;
+}
+@keyframes aurora-drift-1 {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(8vw, 5vh) scale(1.15); }
+  100% { transform: translate(-5vw, 10vh) scale(0.95); }
+}
+@keyframes aurora-drift-2 {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-10vw, -8vh) scale(1.2); }
+  100% { transform: translate(6vw, -4vh) scale(0.9); }
+}
+@keyframes aurora-drift-3 {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-6vw, 8vh) scale(1.1); }
+  100% { transform: translate(4vw, -6vh) scale(1.05); }
+}
+@keyframes aurora-drift-4 {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(7vw, -5vh) scale(1.15); }
+  100% { transform: translate(-8vw, 3vh) scale(0.95); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .aurora-bg::before, .aurora-bg::after, .aurora-orb-1, .aurora-orb-2 {
+    animation: none;
+  }
+}
+
+/* --- HORIZONTAL SCROLL CARDS (POLISHED) --- */
+.horizontal-project-card {
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.4s ease, box-shadow 0.5s ease;
+}
+.horizontal-project-card .card-number {
+  position: absolute;
+  top: 24px;
+  right: 28px;
+  color: var(--dim);
+  font: 500 11px var(--mono);
+  letter-spacing: 0.08em;
+  opacity: 0.5;
+}
+.horizontal-project-card .card-arrow {
+  position: absolute;
+  bottom: 28px;
+  right: 28px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  font-size: 18px;
+  transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.horizontal-project-card:hover .card-arrow {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+  transform: translate(3px, -3px);
+}
+
+/* --- SECTION PARALLAX DEPTH --- */
+.section-depth {
+  position: relative;
+  transform-style: preserve-3d;
+}
+.section-depth > * {
+  position: relative;
+  z-index: 1;
+}
+.parallax-layer {
+  will-change: transform;
+  transition: transform 0.1s linear;
+}
+
 /* --- GLASSMORPHISM LENS EFFECT --- */
 .custom-cursor {
   position: fixed;
