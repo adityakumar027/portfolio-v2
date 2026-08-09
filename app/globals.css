@@ -92,19 +92,19 @@ main, .site-footer { position: relative; z-index: 2; }
 
 .experience { background: #080a09; }
 .experience-list { width: 100%; }
-.experience-item { display: grid; grid-template-columns: minmax(160px, .26fr) minmax(0, 1fr); gap: 4vw; padding: 44px 0; border-top: 1px solid var(--line); transition: background 300ms ease, padding 300ms ease; }
-.experience-main { max-width: 980px; }
-.experience-item:hover { padding-inline: 18px; background: linear-gradient(90deg, rgba(113,245,212,.025), transparent 75%); }
+.experience-item { display: grid; grid-template-columns: minmax(160px, 0.25fr) minmax(0, 0.75fr); gap: 4vw; padding: 44px 0; border-top: 1px solid var(--line); position: relative; }
 .experience-item:last-child { border-bottom: 1px solid var(--line); }
+.experience-main { max-width: 980px; padding: 32px; background: var(--surface-glass); border: 1px solid var(--glass-border); border-radius: 12px; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); transition: border-color 0.4s ease, box-shadow 0.4s ease; }
+.experience-main:hover { border-color: var(--glass-border-hover); box-shadow: 0 0 30px var(--glow); }
 .period, .company, .stack { margin: 0; font: 500 9px var(--mono); letter-spacing: 0.08em; text-transform: uppercase; }
 .period { color: var(--dim); }
-.company { color: var(--accent); }
+.company { color: var(--accent); margin-bottom: 8px; }
 .experience-main h3 { margin: 11px 0 14px; font-size: clamp(26px, 2.5vw, 39px); line-height: 1.06; letter-spacing: -0.032em; font-weight: 500; }
 .experience-summary { max-width: 720px; margin: 0; color: #b0b6b1; font-size: 17px; line-height: 1.65; }
 .experience-main ul { max-width: 780px; margin: 28px 0; padding: 0; list-style: none; }
 .experience-main li { position: relative; margin-top: 12px; padding-left: 21px; color: var(--muted); line-height: 1.65; }
 .experience-main li::before { content: ""; position: absolute; left: 0; top: 0.7em; width: 5px; height: 1px; background: var(--accent); }
-.stack { color: var(--dim); }
+.stack { color: var(--dim); margin-top: 16px; }
 
 .scale { background: radial-gradient(circle at 78% 30%, rgba(113,245,212,.05), transparent 28%), #080b0a; }
 .scale-heading h2 em { color: var(--accent); font-style: normal; }
@@ -469,6 +469,7 @@ main, .site-footer { position: relative; z-index: 2; }
   .section-heading h2 { margin-top: 26px; font-size: 44px; }
   .experience-list { margin: 0; }
   .experience-item { grid-template-columns: 1fr; gap: 17px; padding: 38px 0; }
+  .experience-main { padding: 24px; }
   .experience-main h3 { font-size: 28px; }
   .experience-summary { font-size: 15px; }
   .experience-main li { font-size: 14px; }
