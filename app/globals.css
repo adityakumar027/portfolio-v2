@@ -101,7 +101,7 @@ main, .site-footer { position: relative; z-index: 2; }
 .project { position: relative; min-height: 560px; padding: 16px; display: flex; flex-direction: column; border: 1px solid var(--line); background: rgba(14,18,16,.82); overflow: hidden; isolation:isolate; transition: border-color 300ms ease, transform 300ms cubic-bezier(.22,1,.36,1), box-shadow 300ms ease; }
 .project::after { content:""; position:absolute; z-index:4; top:-35%; bottom:-35%; left:-42%; width:16%; transform:skewX(-18deg); pointer-events:none; background:linear-gradient(90deg,transparent,rgba(176,255,236,.12),rgba(255,255,255,.2),transparent); filter:blur(2px); transition:left 720ms cubic-bezier(.22,1,.36,1); }
 .project:first-child { grid-column: 1 / -1; min-height: 440px; display: grid; grid-template-columns: .82fr 1.18fr; gap: 36px; }
-.project:hover { border-color: rgba(113,245,212,.42); transform: translateY(-5px); box-shadow: 0 20px 70px rgba(0,0,0,.28); }
+.project:hover { border-color: rgba(113,245,212,.42); transform: translateY(-5px) scale(1.02); box-shadow: 0 20px 70px rgba(0,0,0,.28); }
 .project:hover::after { left:132%; }
 .project-visual { position: relative; min-height: 255px; display: grid; place-items: center; overflow: hidden; border: 1px solid rgba(113,245,212,.1); background: radial-gradient(circle,rgba(113,245,212,.15),transparent 54%),linear-gradient(135deg,#101815,#080a09); }
 .project:first-child .project-visual { min-height: 406px; }
@@ -175,6 +175,42 @@ main, .site-footer { position: relative; z-index: 2; }
 .contact-links a { color: var(--muted); font: 500 9px var(--mono); letter-spacing: 0.07em; transition: color 250ms ease; }
 .contact-links a:hover { color: var(--accent); }
 .site-footer { padding: 25px clamp(24px, 4.5vw, 72px); display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--line); background: var(--bg); color: var(--dim); font: 500 8px var(--mono); letter-spacing: 0.06em; }
+
+/* Scroll reveal base — elements start invisible, GSAP animates them in */
+.reveal { opacity: 0; transform: translateY(40px); }
+
+/* Glow overlay applied on scroll-enter */
+.section-reveal-glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(ellipse at center, rgba(113,245,212,0.15), transparent 70%);
+  transition: opacity 600ms ease;
+}
+.section-reveal-glow.is-visible { opacity: 1; }
+
+/* Custom cursor — desktop only */
+.custom-cursor {
+  position: fixed;
+  z-index: 9999;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  mix-blend-mode: difference;
+  pointer-events: none;
+}
+@media (max-width: 980px), (hover: none) {
+  .custom-cursor { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .custom-cursor { transition: none; }
+}
+
+/* Kinetic typography — hero headline word wrappers */
+.hero-headline .word-wrap { display: inline-block; overflow: hidden; vertical-align: bottom; }
+.hero-headline .word { display: inline-block; transform: translateY(110%); }
 
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 5px; }
 
