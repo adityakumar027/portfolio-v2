@@ -242,7 +242,7 @@ export default function Home() {
         <section className="section experience" id="experience" ref={experienceRef}>
           <div className="section-heading reveal">
             <p className="section-index">EXPERIENCE</p>
-            <h2>Work that reached<br />production.</h2>
+            <h2 className="reveal-text">Work that reached<br />production.</h2>
             <p>Focused on measurable improvements to reliability, speed, and operational clarity.</p>
           </div>
           <div className="experience-list">
@@ -264,7 +264,7 @@ export default function Home() {
         <section className="section scale" id="scale" ref={scaleRef}>
           <div className="section-heading scale-heading reveal">
             <p className="section-index">CONSUMER SCALE</p>
-            <h2>Engineering inside<br /><em>high-traffic systems.</em></h2>
+            <h2 className="reveal-text">Engineering inside<br /><em>high-traffic systems.</em></h2>
             <p>Experience contributing to production services supporting consumer experiences used by millions of people.</p>
           </div>
           <div className="scale-context reveal">
@@ -294,7 +294,7 @@ export default function Home() {
           </div>
           <div className="section-heading reveal">
             <p className="section-index">PROFILE &amp; SKILLS</p>
-            <h2>Strong foundations.<br />Production range.</h2>
+            <h2 className="reveal-text">Strong foundations.<br />Production range.</h2>
           </div>
           <div className="about-layout">
             <div className="about-copy reveal">

@@ -39,20 +39,49 @@ export function useScrollAnimation(
     } = options;
 
     const targets = el.querySelectorAll(selector);
-    if (targets.length === 0) return;
 
     const ctx = gsap.context(() => {
-      gsap.fromTo(targets, from, {
-        ...to,
-        stagger,
-        scrollTrigger: {
-          trigger: el,
-          start: triggerStart,
-          once,
-        },
-      });
+      // Regular reveals
+      if (targets.length > 0) {
+        gsap.fromTo(targets, from, {
+          ...to,
+          stagger,
+          scrollTrigger: {
+            trigger: el,
+            start: triggerStart,
+            once,
+          },
+        });
+      }
+
+      // Character-by-character reveals
+      const textReveals = el.querySelectorAll(".reveal-text");
+      if (textReveals.length > 0) {
+        textReveals.forEach(heading => {
+          const text = heading.textContent || "";
+          heading.innerHTML = text.split("").map(char =>
+            `<span class="char">${char === " " ? "&nbsp;" : char}</span>`
+          ).join("");
+          
+          gsap.fromTo(heading.querySelectorAll(".char"),
+            { x: -20, opacity: 0 },
+            {
+              x: 0,
+              opacity: 1,
+              duration: 0.4,
+              ease: "power2.out",
+              stagger: 0.02,
+              scrollTrigger: {
+                trigger: heading,
+                start: "top 80%",
+                once: true,
+              },
+            }
+          );
+        });
+      }
     });
 
     return () => ctx.revert();
-  }, [ref, options.selector, options.triggerStart, options.stagger, options.once]);
+  }, [ref]);
 }
