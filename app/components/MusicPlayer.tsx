@@ -7,163 +7,146 @@ const tracks = [
   { name: "Low Fade", artist: "Chill Beat", src: "/music/Low Fade.mp3" },
 ];
 
-const FADE_DURATION = 2500;
 const TARGET_VOLUME = 0.18;
 
 export default function MusicPlayer() {
-  const audioRef = useRef<HTMLAudioElement>(null);
-  const fadeTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const fadeRafRef = useRef<number>(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [trackIndex, setTrackIndex] = useState(() => Math.floor(Math.random() * tracks.length));
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [hasAutoPlayed, setHasAutoPlayed] = useState(false);
 
   const currentTrack = tracks[trackIndex];
 
-  const fadeIn = useCallback((audio: HTMLAudioElement, from = 0, to = TARGET_VOLUME) => {
-    if (fadeTimerRef.current) clearInterval(fadeTimerRef.current);
-    audio.volume = from;
-    const steps = 30;
-    const increment = (to - from) / steps;
-    const stepTime = FADE_DURATION / steps;
-    let current = from;
-    fadeTimerRef.current = setInterval(() => {
-      current += increment;
-      if (current >= to) {
-        audio.volume = to;
-        if (fadeTimerRef.current) clearInterval(fadeTimerRef.current);
-      } else {
-        audio.volume = current;
+  // Smooth fade using requestAnimationFrame
+  const fadeTo = useCallback((audio: HTMLAudioElement, target: number, duration = 2500) => {
+    cancelAnimationFrame(fadeRafRef.current);
+    const startVol = audio.volume;
+    const startTime = performance.now();
+
+    const tick = (now: number) => {
+      const elapsed = now - startTime;
+      const t = Math.min(elapsed / duration, 1);
+      // Ease-out cubic
+      const ease = 1 - Math.pow(1 - t, 3);
+      audio.volume = startVol + (target - startVol) * ease;
+      if (t < 1) {
+        fadeRafRef.current = requestAnimationFrame(tick);
       }
-    }, stepTime);
+    };
+    fadeRafRef.current = requestAnimationFrame(tick);
   }, []);
 
-  // Auto-play random song at random position on first interaction
+  // Create audio element once
   useEffect(() => {
-    if (hasAutoPlayed) return;
+    const audio = new Audio();
+    audio.preload = "auto";
+    audio.loop = true;
+    audio.src = currentTrack.src;
+    audioRef.current = audio;
 
-    const tryAutoplay = async () => {
-      const audio = audioRef.current;
-      if (!audio || hasAutoPlayed) return;
-
-      try {
-        audio.volume = 0;
-        await audio.play();
-
-        // Seek to random position between 15% and 75% of track
-        const dur = audio.duration;
-        if (dur && dur > 10) {
-          const minPos = dur * 0.15;
-          const maxPos = dur * 0.75;
-          const randomPos = minPos + Math.random() * (maxPos - minPos);
-          audio.currentTime = randomPos;
-        }
-
-        fadeIn(audio);
-        setIsPlaying(true);
-        setHasAutoPlayed(true);
-      } catch {
-        // Autoplay blocked, wait for user gesture
-      }
-    };
-
-    // Try on mount
-    const timer = setTimeout(tryAutoplay, 500);
-
-    // Also try on first user interaction
-    const onInteraction = () => {
-      tryAutoplay();
-      window.removeEventListener("click", onInteraction);
-      window.removeEventListener("touchstart", onInteraction);
-      window.removeEventListener("scroll", onInteraction);
-    };
-    window.addEventListener("click", onInteraction, { once: true });
-    window.addEventListener("touchstart", onInteraction, { once: true });
-    window.addEventListener("scroll", onInteraction, { once: true });
-
-    return () => {
-      clearTimeout(timer);
-      window.removeEventListener("click", onInteraction);
-      window.removeEventListener("touchstart", onInteraction);
-      window.removeEventListener("scroll", onInteraction);
-      if (fadeTimerRef.current) clearInterval(fadeTimerRef.current);
-    };
-  }, [hasAutoPlayed, fadeIn]);
-
-  // Update audio src on track change
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    audio.volume = 0;
-    audio.load();
-
-    if (isPlaying || hasAutoPlayed) {
-      const playAndSeek = async () => {
-        try {
-          await audio.play();
-          const dur = audio.duration;
-          if (dur && dur > 10) {
-            const minPos = dur * 0.15;
-            const maxPos = dur * 0.75;
-            const randomPos = minPos + Math.random() * (maxPos - minPos);
-            audio.currentTime = randomPos;
-          }
-          fadeIn(audio);
-          setIsPlaying(true);
-        } catch {}
-      };
-      playAndSeek();
-    }
-  }, [trackIndex]);
-
-  // Time tracking
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
     const onTime = () => {
       setProgress(audio.currentTime);
       setDuration(audio.duration || 0);
     };
     audio.addEventListener("timeupdate", onTime);
     audio.addEventListener("loadedmetadata", onTime);
+
     return () => {
+      cancelAnimationFrame(fadeRafRef.current);
       audio.removeEventListener("timeupdate", onTime);
       audio.removeEventListener("loadedmetadata", onTime);
+      audio.pause();
+      audio.src = "";
+      audioRef.current = null;
     };
   }, []);
 
-  const togglePlay = () => {
+  // Update src on track change
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.src = currentTrack.src;
+    audio.load();
+    // Seek to random position and play
+    const playNew = async () => {
+      try {
+        audio.volume = 0;
+        await audio.play();
+        const dur = audio.duration;
+        if (dur && dur > 10) {
+          audio.currentTime = dur * 0.15 + Math.random() * dur * 0.6;
+        }
+        fadeTo(audio, TARGET_VOLUME);
+        setIsPlaying(true);
+      } catch {}
+    };
+    playNew();
+  }, [trackIndex, fadeTo]);
+
+  // Auto-play on first user interaction
+  useEffect(() => {
+    let started = false;
+
+    const tryPlay = async () => {
+      if (started) return;
+      const audio = audioRef.current;
+      if (!audio) return;
+      try {
+        audio.volume = 0;
+        await audio.play();
+        const dur = audio.duration;
+        if (dur && dur > 10) {
+          audio.currentTime = dur * 0.15 + Math.random() * dur * 0.6;
+        }
+        fadeTo(audio, TARGET_VOLUME);
+        setIsPlaying(true);
+        started = true;
+      } catch {}
+    };
+
+    // Try immediately (works if user already interacted)
+    tryPlay();
+
+    // Also listen for any user gesture
+    const handler = () => {
+      tryPlay();
+      if (started) {
+        window.removeEventListener("click", handler);
+        window.removeEventListener("touchstart", handler);
+      }
+    };
+    window.addEventListener("click", handler);
+    window.addEventListener("touchstart", handler);
+
+    return () => {
+      window.removeEventListener("click", handler);
+      window.removeEventListener("touchstart", handler);
+    };
+  }, [fadeTo]);
+
+  const togglePlay = async () => {
     const audio = audioRef.current;
     if (!audio) return;
     if (isPlaying) {
-      // Fade out
-      if (fadeTimerRef.current) clearInterval(fadeTimerRef.current);
-      const from = audio.volume;
-      const steps = 20;
-      const decrement = from / steps;
-      let current = from;
-      fadeTimerRef.current = setInterval(() => {
-        current -= decrement;
-        if (current <= 0) {
-          audio.volume = 0;
-          audio.pause();
-          if (fadeTimerRef.current) clearInterval(fadeTimerRef.current);
-        } else {
-          audio.volume = current;
-        }
-      }, FADE_DURATION / steps);
-      setIsPlaying(false);
+      fadeTo(audio, 0, 800);
+      // Wait for fade then pause
+      setTimeout(() => {
+        audio.pause();
+        setIsPlaying(false);
+      }, 850);
     } else {
-      fadeIn(audio, 0, TARGET_VOLUME);
-      audio.play();
+      audio.volume = 0;
+      await audio.play();
+      fadeTo(audio, TARGET_VOLUME);
       setIsPlaying(true);
     }
   };
 
   const nextTrack = () => {
-    if (fadeTimerRef.current) clearInterval(fadeTimerRef.current);
+    cancelAnimationFrame(fadeRafRef.current);
     setTrackIndex((i) => (i + 1) % tracks.length);
   };
 
@@ -176,8 +159,6 @@ export default function MusicPlayer() {
 
   return (
     <>
-      <audio ref={audioRef} src={currentTrack.src} preload="auto" loop />
-
       <div className={`music-player ${isExpanded ? "expanded" : ""}`}>
         {isExpanded && (
           <div className="music-player-detail">

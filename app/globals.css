@@ -219,6 +219,7 @@ main, .site-footer { position: relative; z-index: 2; }
   flex-direction: column;
   gap: 28px;
   width: 100%;
+  padding-top: 8px;
 }
 .skill-group {
   display: flex;
@@ -268,7 +269,7 @@ main, .site-footer { position: relative; z-index: 2; }
 /* --- SCROLL PROGRESS INDICATOR --- */
 .scroll-progress {
   position: fixed;
-  right: clamp(24px, 4.5vw, 72px);
+  right: clamp(70px, 6vw, 110px);
   top: 50%;
   transform: translateY(-50%);
   width: 2px;
