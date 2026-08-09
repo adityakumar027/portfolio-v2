@@ -129,11 +129,21 @@ export default function Home() {
 
   useEffect(() => {
     const handleScroll = () => {
+      const scrolled = window.scrollY;
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = maxScroll > 0 ? scrolled / maxScroll : 0;
+      
+      // Shift aurora position based on scroll
+      document.documentElement.style.setProperty('--aurora-x', `${progress * 30}%`);
+      document.documentElement.style.setProperty('--aurora-y', `${progress * 20}%`);
+      
+      // Existing scroll progress for 3D scene
       const hero = document.getElementById("top");
-      if (!hero) return;
-      const rect = hero.getBoundingClientRect();
-      const progress = Math.min(1, Math.max(0, -rect.top / rect.height));
-      setScrollProgress(progress);
+      if (hero) {
+        const rect = hero.getBoundingClientRect();
+        const heroProgress = Math.min(1, Math.max(0, -rect.top / rect.height));
+        setScrollProgress(heroProgress);
+      }
     };
     addEventListener("scroll", handleScroll, { passive: true });
     return () => removeEventListener("scroll", handleScroll);
