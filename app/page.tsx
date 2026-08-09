@@ -2,10 +2,11 @@
 
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { gsap } from "gsap";
 import { useScrollAnimation } from "./hooks/useScrollAnimation";
 import CustomCursor from "./components/CustomCursor";
+import HorizontalProjects from "./components/HorizontalProjects";
 import { Playfair_Display } from "next/font/google";
 
 const playfair = Playfair_Display({ 
@@ -51,9 +52,7 @@ const projects = [
     type: "Full-stack browser automation",
     description: "A full-stack Chrome extension that turns unstructured résumé PDFs into editable profiles and completes applications across job portals.",
     outcomes: [
-      "Built the extension and application stack with React, Node.js, Express, and MongoDB.",
-      "Designed JWT-secured APIs and a modular schema for private, scalable profile management.",
-      "Implemented asynchronous PDF parsing with pdf-parse and an editable React review flow.",
+      "Built the extension and application stack with React, Node.js, Express, and MongoDB."
     ],
     result: "PDF → structured profile → autofill",
     stack: "React · Node.js · Express · MongoDB · JWT",
@@ -65,9 +64,7 @@ const projects = [
     type: "Graph machine learning",
     description: "A GCN-based node classifier with two-hop neighborhood aggregation and weighted loss for the imbalanced CORA citation dataset.",
     outcomes: [
-      "Improved classification accuracy by 15% over traditional dense-network baselines.",
-      "Implemented two-hop neighborhood aggregation for stronger graph representation learning.",
-      "Used weighted loss and data balancing to improve convergence on imbalanced CORA classes.",
+      "Improved classification accuracy by 15% over traditional dense-network baselines."
     ],
     result: "15% accuracy improvement",
     stack: "Python · TensorFlow · Keras · GCN",
@@ -79,9 +76,7 @@ const projects = [
     type: "Systems simulation",
     description: "A modular terminal operating-system simulation with authentication, concurrent command execution, process scheduling, and an extensible shell.",
     outcomes: [
-      "Built a terminal OS simulation with a custom CLI, secure authentication, and multithreading.",
-      "Designed an extensible shell where new commands can be added in fewer than 10 lines.",
-      "Applied object-oriented architecture to authentication, process execution, and module boundaries.",
+      "Built a terminal OS simulation with a custom CLI, secure authentication, and multithreading."
     ],
     result: "New commands in under 10 lines",
     stack: "Python · CLI · Multithreading",
@@ -99,68 +94,18 @@ const capabilities = [
 ];
 
 const achievements = [
-  {
-    metric: "LinkedIn",
-    before: "View my ",
-    highlight: "engineering profile",
-    after: " ↗",
-    href: "https://www.linkedin.com/in/adicrzz/",
-  },
-  {
-    metric: "LeetCode",
-    before: "Knight · ",
-    highlight: "1820",
-    after: " rating ↗",
-    href: "https://leetcode.com/u/aditya_x1x/",
-  },
-  {
-    metric: "CodeChef",
-    before: "3★ · ",
-    highlight: "1661",
-    after: " rating ↗",
-    href: "https://www.codechef.com/users/aditya_x1x",
-  },
-  {
-    metric: "Codeforces",
-    before: "Competitive rating · ",
-    highlight: "1300+",
-    after: " ↗",
-    href: "https://codeforces.com/profile/aditya_x1x",
-  },
-  {
-    metric: "GitHub",
-    before: "Explore my ",
-    highlight: "projects & code",
-    after: " ↗",
-    href: "https://github.com/adityakumar027",
-  },
+  { metric: "LinkedIn", before: "View my ", highlight: "engineering profile", after: " ↗", href: "https://www.linkedin.com/in/adicrzz/" },
+  { metric: "LeetCode", before: "Knight · ", highlight: "1820", after: " rating ↗", href: "https://leetcode.com/u/aditya_x1x/" },
+  { metric: "CodeChef", before: "3★ · ", highlight: "1661", after: " rating ↗", href: "https://www.codechef.com/users/aditya_x1x" },
+  { metric: "Codeforces", before: "Competitive rating · ", highlight: "1300+", after: " ↗", href: "https://codeforces.com/profile/aditya_x1x" },
+  { metric: "GitHub", before: "Explore my ", highlight: "projects & code", after: " ↗", href: "https://github.com/adityakumar027" },
 ];
 
 const productionSurfaces = [
-  {
-    index: "01",
-    title: "Campaign orchestration",
-    description: "Worked on campaign execution and failure-analysis paths where reliability directly affects high-volume customer communication.",
-    signal: "Production workflows · AI-assisted RCA",
-  },
-  {
-    index: "02",
-    title: "Segmentation services",
-    description: "Contributed to operational services that turn audience and policy inputs into dependable, reviewable production workflows.",
-    signal: "Human-in-the-loop · 85% less manual review",
-  },
-  {
-    index: "03",
-    title: "Notification reliability",
-    description: "Built self-learning remediation loops across notification systems, automatically resolving more than 60% of observed failures.",
-    signal: "60%+ auto-resolved · 70% faster response",
-  },
-  {
-    index: "04",
-    title: "Operations platform",
-    description: "Delivered APIs and real-time operational visibility across Coralogix, Sentry, AWS SQS, and Metabase.",
-    signal: "20+ REST APIs · Real-time dashboards",
-  },
+  { index: "01", title: "Campaign orchestration", description: "Worked on campaign execution and failure-analysis paths where reliability directly affects high-volume customer communication.", signal: "Production workflows · AI-assisted RCA" },
+  { index: "02", title: "Segmentation services", description: "Contributed to operational services that turn audience and policy inputs into dependable, reviewable production workflows.", signal: "Human-in-the-loop · 85% less manual review" },
+  { index: "03", title: "Notification reliability", description: "Built self-learning remediation loops across notification systems, automatically resolving more than 60% of observed failures.", signal: "60%+ auto-resolved · 70% faster response" },
+  { index: "04", title: "Operations platform", description: "Delivered APIs and real-time operational visibility across Coralogix, Sentry, AWS SQS, and Metabase.", signal: "20+ REST APIs · Real-time dashboards" },
 ];
 
 export default function Home() {
@@ -172,14 +117,12 @@ export default function Home() {
   const metricsRef = useRef<HTMLElement>(null);
   const experienceRef = useRef<HTMLElement>(null);
   const scaleRef = useRef<HTMLElement>(null);
-  const workRef = useRef<HTMLElement>(null);
   const skillsRef = useRef<HTMLElement>(null);
   const contactRef = useRef<HTMLElement>(null);
 
   useScrollAnimation(metricsRef, { stagger: 0.1 });
   useScrollAnimation(experienceRef, { stagger: 0.12 });
   useScrollAnimation(scaleRef, { stagger: 0.1 });
-  useScrollAnimation(workRef, { selector: ".project", stagger: 0.15 });
   useScrollAnimation(skillsRef, { selector: ".capabilities article", stagger: 0.08 });
   useScrollAnimation(contactRef);
 
@@ -353,29 +296,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="section work" id="work" ref={workRef}>
-          <div className="section-heading work-heading reveal">
-            <p className="section-index">SELECTED WORK</p>
-            <h2>Built around a real<br />engineering problem.</h2>
-          </div>
-          <div className="project-list">
-            {projects.map((project) => (
-              <a className="project reveal" href={project.href} target="_blank" rel="noreferrer" key={project.index}>
-                <div className={`project-visual visual-${project.index}`} aria-hidden="true">
-                  <span>{project.index}</span><i /><i /><b>{project.result}</b>
-                </div>
-                <div className="project-content">
-                  <div className="project-top"><p>{project.type}</p><span>{project.index} / 03</span></div>
-                  <h3>{project.title}</h3>
-                  <p className="project-description">{project.description}</p>
-                  <ul className="project-outcomes">{project.outcomes.map((outcome) => <li key={outcome}>{outcome}</li>)}</ul>
-                  <div className="project-meta"><span>{project.result}</span><span>{project.stack}</span></div>
-                </div>
-                <span className="project-arrow" aria-hidden="true">↗</span>
-              </a>
-            ))}
-          </div>
-        </section>
+        <HorizontalProjects projects={projects} />
 
         <section className="section about" id="skills" ref={skillsRef}>
           <div className="section-heading reveal">
