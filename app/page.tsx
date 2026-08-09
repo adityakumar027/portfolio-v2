@@ -270,12 +270,15 @@ export default function Home() {
             <p className="scale-label">CUREFIT · HOUSE OF CULT</p>
             <p className="scale-statement">I worked across <em>campaign</em>, <em>segmentation</em>, and <em>notification</em> services—building the automation, observability, and remediation paths that keep large consumer platforms dependable.</p>
           </div>
-          <div className="service-grid">
+          <div className="scale-showcase">
             {productionSurfaces.map((surface) => (
-              <article className="reveal" key={surface.index}>
-                <h3>{surface.title}</h3>
-                <p>{surface.description}</p>
-                <strong>{surface.signal}</strong>
+              <article className="scale-showcase-card reveal" key={surface.index}>
+                <div className="scale-showcase-index">{surface.index}</div>
+                <div className="scale-showcase-content">
+                  <h3>{surface.title}</h3>
+                  <p>{surface.description}</p>
+                  <div className="scale-showcase-signal">{surface.signal}</div>
+                </div>
               </article>
             ))}
           </div>
