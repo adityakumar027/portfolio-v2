@@ -1,7 +1,18 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { gsap } from "gsap";
+import { useScrollAnimation } from "./hooks/useScrollAnimation";
+import CustomCursor from "./components/CustomCursor";
+import { Playfair_Display } from "next/font/google";
+
+const playfair = Playfair_Display({ 
+  subsets: ["latin"], 
+  weight: ["400", "600"], 
+  style: ["italic", "normal"] 
+});
 
 const CoreScene = dynamic(() => import("./components/CoreScene"), { ssr: false });
 
@@ -154,62 +165,142 @@ const productionSurfaces = [
 
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
 
   const closeMenu = () => setMenuOpen(false);
+
+  const metricsRef = useRef<HTMLElement>(null);
+  const experienceRef = useRef<HTMLElement>(null);
+  const scaleRef = useRef<HTMLElement>(null);
+  const workRef = useRef<HTMLElement>(null);
+  const skillsRef = useRef<HTMLElement>(null);
+  const contactRef = useRef<HTMLElement>(null);
+
+  useScrollAnimation(metricsRef, { stagger: 0.1 });
+  useScrollAnimation(experienceRef, { stagger: 0.12 });
+  useScrollAnimation(scaleRef, { stagger: 0.1 });
+  useScrollAnimation(workRef, { selector: ".project", stagger: 0.15 });
+  useScrollAnimation(skillsRef, { selector: ".capabilities article", stagger: 0.08 });
+  useScrollAnimation(contactRef);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const hero = document.getElementById("top");
+      if (!hero) return;
+      const rect = hero.getBoundingClientRect();
+      const progress = Math.min(1, Math.max(0, -rect.top / rect.height));
+      setScrollProgress(progress);
+    };
+    addEventListener("scroll", handleScroll, { passive: true });
+    return () => removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const prefersReducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (prefersReducedMotion) return;
+
+    const wraps = document.querySelectorAll(".hero-headline .word-wrap");
+    const words = document.querySelectorAll(".hero-headline .word");
+    if (wraps.length === 0) return;
+
+    gsap.set(wraps, { overflow: "hidden", display: "inline-block" });
+    gsap.set(words, { y: "110%", opacity: 0 });
+
+    gsap.to(words, {
+      y: "0%",
+      opacity: 1,
+      duration: 1,
+      ease: "power4.out",
+      stagger: 0.08,
+      delay: 0.2,
+    });
+  }, []);
 
   return (
     <>
       <a className="skip-link" href="#main">Skip to content</a>
-      <CoreScene />
+      <CoreScene scrollProgress={scrollProgress} />
       <div className="site-grain" aria-hidden="true" />
 
       <header className="site-header">
         <a className="brand" href="#top" aria-label="Portfolio home">
-          <span className="brand-mark">P</span>
-          <span>PORTFOLIO<small>ADITYA KUMAR</small></span>
+          <span>ADITYA KUMAR</span>
         </a>
-        <nav className={menuOpen ? "nav-links is-open" : "nav-links"} aria-label="Primary navigation">
-          <a href="#experience" onClick={closeMenu}>Experience</a>
-          <a href="#scale" onClick={closeMenu}>Scale</a>
-          <a href="#work" onClick={closeMenu}>Work</a>
-          <a href="#skills" onClick={closeMenu}>Skills</a>
-          <a href="#contact" onClick={closeMenu}>Contact</a>
+        <nav className="nav-links" aria-label="Primary navigation">
+          <a href="#experience" onClick={closeMenu}>EXPERIENCE</a>
+          <a href="#scale" onClick={closeMenu}>SCALE</a>
+          <a href="#work" onClick={closeMenu}>WORK</a>
+          <a href="#skills" onClick={closeMenu}>SKILLS</a>
+          <a href="#contact" onClick={closeMenu}>CONTACT</a>
         </nav>
-        <a className="resume-link" href="https://drive.google.com/file/d/1OJ-TCUjlttRgMqDw7UB4nr96Z6fGtAiQ/view?usp=sharing" target="_blank" rel="noreferrer">Résumé <span>↗</span></a>
+        {menuOpen && (
+          <motion.div
+            className="nav-mobile"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <a href="#experience" onClick={closeMenu}>EXPERIENCE</a>
+            <a href="#scale" onClick={closeMenu}>SCALE</a>
+            <a href="#work" onClick={closeMenu}>WORK</a>
+            <a href="#skills" onClick={closeMenu}>SKILLS</a>
+            <a href="#contact" onClick={closeMenu}>CONTACT</a>
+            <a href="https://drive.google.com/file/d/1OJ-TCUjlttRgMqDw7UB4nr96Z6fGtAiQ/view?usp=sharing" target="_blank" rel="noreferrer">RÉSUMÉ</a>
+          </motion.div>
+        )}
+        <a className="resume-link" href="https://drive.google.com/file/d/1OJ-TCUjlttRgMqDw7UB4nr96Z6fGtAiQ/view?usp=sharing" target="_blank" rel="noreferrer">RÉSUMÉ</a>
         <button className="menu-toggle" onClick={() => setMenuOpen((open) => !open)} aria-expanded={menuOpen} aria-label="Toggle navigation">
-          {menuOpen ? "Close" : "Menu"}
+          {menuOpen ? "CLOSE" : "MENU"}
         </button>
       </header>
 
       <main id="main">
         <section className="hero" id="top">
-          <div className="hero-copy">
-            <p className="eyebrow">
-              <span className="eyebrow-dot" aria-hidden="true" />
-              <span className="eyebrow-name">Aditya Kumar</span>
-              <span className="eyebrow-separator" aria-hidden="true">·</span>
-              <span>Software Engineer</span>
-              <span className="eyebrow-separator" aria-hidden="true">·</span>
-              <span className="eyebrow-school">IIIT Gwalior</span>
-            </p>
-            <h1>I build systems<br />that <em>scale &amp; heal.</em></h1>
-            <p className="hero-summary">Production AI and backend infrastructure engineered to scale, recover, and stay reliable—from self-healing workflows to research-driven machine learning systems.</p>
-            <div className="hero-actions">
-              <a className="primary-action" href="#work">View selected work <span>↓</span></a>
-              <a className="text-action" href="mailto:adi.workspace76865@gmail.com">adi.workspace76865@gmail.com</a>
+          <div className="hero-content">
+            <h1 className="hero-headline">
+              <div className="headline-line">
+                <span className="word-wrap"><span className="word">I</span></span>{' '}
+                <span className="word-wrap"><span className="word">build</span></span>{' '}
+                <span className="word-wrap"><span className="word">systems</span></span>
+              </div>
+              <div className="headline-line">
+                <span className="word-wrap"><span className="word">that</span></span>{' '}
+                <span className="word-wrap"><span className={`word serif-accent ${playfair.className}`}><em>scale</em></span></span>{' '}
+                <span className="word-wrap"><span className={`word serif-accent ${playfair.className}`}><em>&amp;</em></span></span>{' '}
+                <span className="word-wrap"><span className={`word serif-accent ${playfair.className}`}><em>heal.</em></span></span>
+              </div>
+            </h1>
+          </div>
+          
+          <div className="hero-bottom-grid" aria-hidden="true">
+            <div className="hero-info-block">
+              <span className="info-label">ROLE</span>
+              <span className="info-value">SOFTWARE ENGINEER</span>
+            </div>
+            <div className="hero-info-block">
+              <span className="info-label">LOCATION</span>
+              <span className="info-value">IIIT GWALIOR</span>
+            </div>
+            <div className="hero-info-block">
+              <span className="info-label">STATUS</span>
+              <span className="info-value">OPEN TO OPPORTUNITIES</span>
+            </div>
+            <div className="hero-info-block">
+              <span className="info-label">TIMELINE</span>
+              <span className="info-value">GRADUATING 2027</span>
             </div>
           </div>
-          <div className="core-caption" aria-hidden="true">
-            <span>CORE / 001</span>
-            <span>STATUS / ACTIVE</span>
-          </div>
-          <div className="hero-proof" aria-label="Selected career metrics">
+        </section>
+
+        <section className="section impact-metrics" id="metrics" ref={metricsRef}>
+          <div className="hero-proof reveal" aria-label="Selected career metrics">
             <article><strong>1,200+</strong><span><em>Coding problems</em> solved</span></article>
             <article><strong>50+</strong><span>Production <em>APIs shipped</em></span></article>
             <article><strong>80%+</strong><span>Failures <em>auto-resolved</em></span></article>
             <article><strong>Millions+</strong><span>Users served by <em>production services</em></span></article>
           </div>
-          <nav className="hero-profiles" aria-label="Professional profiles">
+          <nav className="hero-profiles reveal" aria-label="Professional profiles">
             {achievements.map((achievement) => (
               <a href={achievement.href} target="_blank" rel="noreferrer" key={achievement.metric}>
                 <strong>{achievement.metric}</strong>
@@ -219,15 +310,15 @@ export default function Home() {
           </nav>
         </section>
 
-        <section className="section experience" id="experience">
-          <div className="section-heading">
+        <section className="section experience" id="experience" ref={experienceRef}>
+          <div className="section-heading reveal">
             <p className="section-index">EXPERIENCE</p>
             <h2>Work that reached<br />production.</h2>
             <p>Focused on measurable improvements to reliability, speed, and operational clarity.</p>
           </div>
           <div className="experience-list">
             {experience.map((item) => (
-              <article className="experience-item" key={item.company}>
+              <article className="experience-item reveal" key={item.company}>
                 <p className="period">{item.period}</p>
                 <div className="experience-main">
                   <p className="company">{item.company}</p>
@@ -241,19 +332,19 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="section scale" id="scale">
-          <div className="section-heading scale-heading">
+        <section className="section scale" id="scale" ref={scaleRef}>
+          <div className="section-heading scale-heading reveal">
             <p className="section-index">CONSUMER SCALE</p>
             <h2>Engineering inside<br /><em>high-traffic systems.</em></h2>
             <p>Experience contributing to production services supporting consumer experiences used by millions of people.</p>
           </div>
-          <div className="scale-context">
+          <div className="scale-context reveal">
             <p className="scale-label">CUREFIT · HOUSE OF CULT</p>
             <p className="scale-statement">I worked across <em>campaign</em>, <em>segmentation</em>, and <em>notification</em> services—building the automation, observability, and remediation paths that keep large consumer platforms dependable.</p>
           </div>
           <div className="service-grid">
             {productionSurfaces.map((surface) => (
-              <article key={surface.index}>
+              <article className="reveal" key={surface.index}>
                 <h3>{surface.title}</h3>
                 <p>{surface.description}</p>
                 <strong>{surface.signal}</strong>
@@ -262,14 +353,14 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="section work" id="work">
-          <div className="section-heading work-heading">
+        <section className="section work" id="work" ref={workRef}>
+          <div className="section-heading work-heading reveal">
             <p className="section-index">SELECTED WORK</p>
             <h2>Built around a real<br />engineering problem.</h2>
           </div>
           <div className="project-list">
             {projects.map((project) => (
-              <a className="project" href={project.href} target="_blank" rel="noreferrer" key={project.index}>
+              <a className="project reveal" href={project.href} target="_blank" rel="noreferrer" key={project.index}>
                 <div className={`project-visual visual-${project.index}`} aria-hidden="true">
                   <span>{project.index}</span><i /><i /><b>{project.result}</b>
                 </div>
@@ -286,14 +377,14 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="section about" id="skills">
-          <div className="section-heading">
+        <section className="section about" id="skills" ref={skillsRef}>
+          <div className="section-heading reveal">
             <p className="section-index">PROFILE &amp; SKILLS</p>
             <h2>Strong foundations.<br />Production range.</h2>
           </div>
           <div className="about-layout">
-            <div className="about-copy">
-              <p>I’m an Integrated B.Tech IT + MBA student at IIIT Gwalior, graduating in 2027 with a 7.97 CGPA. My work sits at the intersection of backend engineering, intelligent automation, and production operations.</p>
+            <div className="about-copy reveal">
+              <p>I&apos;m an Integrated B.Tech IT + MBA student at IIIT Gwalior, graduating in 2027 with a 7.97 CGPA. My work sits at the intersection of backend engineering, intelligent automation, and production operations.</p>
               <p>I care about systems that are observable, explainable, and designed for failure—not just demos that work once.</p>
               <div className="education-line">
                 <span className="education-label">Education</span>
@@ -306,16 +397,18 @@ export default function Home() {
               </div>
             </div>
             <div className="capabilities">
-              {capabilities.map((capability) => <article key={capability.label}><h3>{capability.label}</h3><p>{capability.items}</p></article>)}
+              {capabilities.map((capability) => <article className="reveal" key={capability.label}><h3>{capability.label}</h3><p>{capability.items}</p></article>)}
             </div>
           </div>
         </section>
 
-        <section className="contact" id="contact">
+        <section className="contact" id="contact" ref={contactRef}>
           <p className="section-index">CONTACT</p>
-          <h2>Have a difficult<br />system to build?</h2>
-          <p>I’m open to software engineering roles and ambitious technical work.</p>
-          <a className="contact-email" href="mailto:adi.workspace76865@gmail.com">Let’s talk <span>↗</span></a>
+          <div className="reveal">
+            <h2>Have a difficult<br />system to build?</h2>
+          </div>
+          <p>I&apos;m open to software engineering roles and ambitious technical work.</p>
+          <a className="contact-email reveal" href="mailto:adi.workspace76865@gmail.com">Let&apos;s talk <span>↗</span></a>
           <div className="contact-links">
             <a href="https://github.com/adityakumar027" target="_blank" rel="noreferrer">GitHub ↗</a>
             <a href="https://www.linkedin.com/in/adicrzz/" target="_blank" rel="noreferrer">LinkedIn ↗</a>
@@ -329,6 +422,8 @@ export default function Home() {
         <span>Designed as a quiet machine.</span>
         <a href="#top">Back to top ↑</a>
       </footer>
+
+      <CustomCursor />
     </>
   );
 }
