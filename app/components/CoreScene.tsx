@@ -18,13 +18,14 @@ function AmbientFluid({ scrollProgress }: { scrollProgress: number }) {
     meshRef.current.rotation.y += delta * 0.08;
     meshRef.current.rotation.z += delta * 0.03;
 
-    // React to scroll (moves up and fades slightly as you scroll down)
-    meshRef.current.position.y = THREE.MathUtils.lerp(0, 3, scrollProgress);
-    materialRef.current.opacity = THREE.MathUtils.lerp(0.4, 0.1, scrollProgress);
+    // React to scroll: sharpen, scale down, slide off
+    meshRef.current.position.y = THREE.MathUtils.lerp(0, 5, scrollProgress);
+    meshRef.current.scale.setScalar(THREE.MathUtils.lerp(0.5, 0.3, scrollProgress));
+    materialRef.current.opacity = THREE.MathUtils.lerp(0.4, 0.05, scrollProgress);
   });
 
   return (
-    <mesh ref={meshRef} position={[2, 0, -2]} scale={4.5}>
+    <mesh ref={meshRef} position={[2, 0, -2]} scale={0.5}>
       <icosahedronGeometry args={[1, 16]} />
       <meshPhysicalMaterial 
         ref={materialRef}
@@ -47,7 +48,7 @@ export default function CoreScene({ scrollProgress = 0 }: { scrollProgress?: num
   if (!enabled) return null;
 
   return (
-    <div className="webgl-layer" aria-hidden="true" style={{ filter: 'blur(60px)' }}>
+    <div className="webgl-layer" aria-hidden="true" style={{ filter: `blur(${60 - scrollProgress * 60}px)` }}>
       <Canvas
         camera={{ position: [0, 0, 8], fov: 45 }}
         gl={{ antialias: false, alpha: true }}
