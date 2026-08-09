@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function CustomCursor() {
   const [mouseX, setMouseX] = useState(0);
@@ -16,39 +16,48 @@ export default function CustomCursor() {
 
     const handleMouseOver = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      if (target.closest("a, button, .project, .capabilities article, .primary-action, .contact-email")) {
+      if (target.closest("a, button, .horizontal-project-card, .capabilities article, .contact-email")) {
         setIsHovering(true);
       }
     };
 
     const handleMouseOut = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      if (target.closest("a, button, .project, .capabilities article, .primary-action, .contact-email")) {
+      if (target.closest("a, button, .horizontal-project-card, .capabilities article, .contact-email")) {
         setIsHovering(false);
       }
     };
 
-    addEventListener("mousemove", handleMouseMove, { passive: true });
+    window.addEventListener("mousemove", handleMouseMove, { passive: true });
     document.addEventListener("mouseover", handleMouseOver);
     document.addEventListener("mouseout", handleMouseOut);
 
     return () => {
-      removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseover", handleMouseOver);
       document.removeEventListener("mouseout", handleMouseOut);
     };
   }, []);
 
   return (
-    <motion.div
-      className="custom-cursor"
-      animate={{
-        x: mouseX - 30,
-        y: mouseY - 30,
-        scale: isHovering ? 1.3 : 1,
-        opacity: isHovering ? 1 : 0.7,
-      }}
-      transition={{ type: "spring", stiffness: 500, damping: 28, mass: 0.5 }}
-    />
+    <AnimatePresence>
+      <motion.div
+        className="custom-cursor"
+        initial={{ opacity: 0, scale: 0.5 }}
+        animate={{ 
+          opacity: 1, 
+          scale: isHovering ? 2.5 : 1,
+          x: mouseX,
+          y: mouseY
+        }}
+        exit={{ opacity: 0, scale: 0.5 }}
+        transition={{ 
+          type: "spring", 
+          damping: 25, 
+          stiffness: 400, 
+          mass: 0.5
+        }}
+      />
+    </AnimatePresence>
   );
 }
