@@ -125,7 +125,7 @@ export default function Home() {
 
   useScrollAnimation(experienceRef, { stagger: 0.12 });
   useScrollAnimation(scaleRef, { stagger: 0.1 });
-  useScrollAnimation(skillsRef, { selector: ".capabilities article", stagger: 0.08 });
+  useScrollAnimation(skillsRef, { selector: ".reveal, .capabilities article", stagger: 0.08 });
   useScrollAnimation(contactRef);
 
   useEffect(() => {

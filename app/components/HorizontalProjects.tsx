@@ -44,6 +44,21 @@ export default function HorizontalProjects({ projects }: { projects: any[] }) {
       },
     });
 
+    // Entrance animation for cards
+    const cards = section.querySelectorAll(".horizontal-project-card");
+    gsap.from(cards, {
+      opacity: 0,
+      x: 80,
+      duration: 0.9,
+      ease: "power3.out",
+      stagger: 0.12,
+      scrollTrigger: {
+        trigger: section,
+        start: "top 70%",
+        once: true,
+      },
+    });
+
     return () => {
       tween.kill();
       ScrollTrigger.getAll().forEach(t => t.kill());
@@ -55,7 +70,7 @@ export default function HorizontalProjects({ projects }: { projects: any[] }) {
     const rect = card.getBoundingClientRect();
     const x = (e.clientX - rect.left) / rect.width - 0.5;
     const y = (e.clientY - rect.top) / rect.height - 0.5;
-    card.style.transform = `perspective(1000px) rotateY(${x * 8}deg) rotateX(${-y * 8}deg) translateY(-10px)`;
+    card.style.transform = `perspective(1000px) rotateY(${x * 6}deg) rotateX(${-y * 6}deg) translateY(-8px)`;
   };
 
   const handleMouseLeave = (e: React.MouseEvent<HTMLAnchorElement>) => {

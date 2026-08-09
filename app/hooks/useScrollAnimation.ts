@@ -24,10 +24,14 @@ export function useScrollAnimation(
 ) {
   useEffect(() => {
     const prefersReducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (prefersReducedMotion) return;
 
     const el = ref.current;
     if (!el) return;
+
+    if (prefersReducedMotion) {
+      gsap.set(el.querySelectorAll(".reveal"), { y: 0, opacity: 1 });
+      return;
+    }
 
     const {
       selector = ".reveal",

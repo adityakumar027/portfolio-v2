@@ -8,10 +8,13 @@ const tracks = [
 ];
 
 const TARGET_VOLUME = 0.18;
+const FADE_MS = 2500;
 
 export default function MusicPlayer() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const fadeRafRef = useRef<number>(0);
+  const unmutedRef = useRef(false);
+  const firstRenderRef = useRef(true);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [trackIndex, setTrackIndex] = useState(() => Math.floor(Math.random() * tracks.length));
@@ -21,7 +24,7 @@ export default function MusicPlayer() {
   const currentTrack = tracks[trackIndex];
 
   // Smooth fade using requestAnimationFrame
-  const fadeTo = useCallback((audio: HTMLAudioElement, target: number, duration = 2500) => {
+  const fadeTo = useCallback((audio: HTMLAudioElement, target: number, duration = FADE_MS) => {
     cancelAnimationFrame(fadeRafRef.current);
     const startVol = audio.volume;
     const startTime = performance.now();
@@ -29,7 +32,6 @@ export default function MusicPlayer() {
     const tick = (now: number) => {
       const elapsed = now - startTime;
       const t = Math.min(elapsed / duration, 1);
-      // Ease-out cubic
       const ease = 1 - Math.pow(1 - t, 3);
       audio.volume = startVol + (target - startVol) * ease;
       if (t < 1) {
@@ -39,12 +41,37 @@ export default function MusicPlayer() {
     fadeRafRef.current = requestAnimationFrame(tick);
   }, []);
 
-  // Create audio element once
+  const seekRandom = useCallback((audio: HTMLAudioElement) => {
+    const dur = audio.duration;
+    if (dur && !isNaN(dur) && dur > 10) {
+      audio.currentTime = dur * 0.15 + Math.random() * dur * 0.6;
+    }
+  }, []);
+
+  // Play a track muted first, then fade in when the user activates the page.
+  const playTrack = useCallback(async (audio: HTMLAudioElement, withFade: boolean) => {
+    try {
+      audio.volume = 0;
+      await audio.play();
+      seekRandom(audio);
+      setIsPlaying(true);
+      if (withFade) {
+        unmutedRef.current = true;
+        fadeTo(audio, TARGET_VOLUME);
+      }
+      return true;
+    } catch {
+      return false;
+    }
+  }, [fadeTo, seekRandom]);
+
+  // Create audio element once + bootstrap autoplay
   useEffect(() => {
     const audio = new Audio();
     audio.preload = "auto";
     audio.loop = true;
-    audio.src = currentTrack.src;
+    audio.volume = 0;
+    audio.src = tracks[Math.floor(Math.random() * tracks.length)].src;
     audioRef.current = audio;
 
     const onTime = () => {
@@ -54,92 +81,65 @@ export default function MusicPlayer() {
     audio.addEventListener("timeupdate", onTime);
     audio.addEventListener("loadedmetadata", onTime);
 
+    // 1) Silent autoplay attempt — allowed by browsers while muted.
+    playTrack(audio, false);
+
+    // 2) On the first real user gesture anywhere, fade the music in
+    //    (browsers only allow unmuted playback after user activation).
+    const unmute = () => {
+      if (unmutedRef.current) return;
+      playTrack(audio, true);
+    };
+    window.addEventListener("click", unmute, { once: true });
+    window.addEventListener("keydown", unmute, { once: true });
+    window.addEventListener("touchstart", unmute, { once: true });
+    window.addEventListener("pointerdown", unmute, { once: true });
+
     return () => {
       cancelAnimationFrame(fadeRafRef.current);
+      window.removeEventListener("click", unmute);
+      window.removeEventListener("keydown", unmute);
+      window.removeEventListener("touchstart", unmute);
+      window.removeEventListener("pointerdown", unmute);
       audio.removeEventListener("timeupdate", onTime);
       audio.removeEventListener("loadedmetadata", onTime);
       audio.pause();
       audio.src = "";
       audioRef.current = null;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Update src on track change
+  // Swap track when next is pressed
   useEffect(() => {
+    if (firstRenderRef.current) {
+      firstRenderRef.current = false;
+      return;
+    }
     const audio = audioRef.current;
     if (!audio) return;
+    cancelAnimationFrame(fadeRafRef.current);
     audio.src = currentTrack.src;
     audio.load();
-    // Seek to random position and play
-    const playNew = async () => {
-      try {
-        audio.volume = 0;
-        await audio.play();
-        const dur = audio.duration;
-        if (dur && dur > 10) {
-          audio.currentTime = dur * 0.15 + Math.random() * dur * 0.6;
-        }
-        fadeTo(audio, TARGET_VOLUME);
-        setIsPlaying(true);
-      } catch {}
-    };
-    playNew();
-  }, [trackIndex, fadeTo]);
-
-  // Auto-play on first user interaction
-  useEffect(() => {
-    let started = false;
-
-    const tryPlay = async () => {
-      if (started) return;
-      const audio = audioRef.current;
-      if (!audio) return;
-      try {
-        audio.volume = 0;
-        await audio.play();
-        const dur = audio.duration;
-        if (dur && dur > 10) {
-          audio.currentTime = dur * 0.15 + Math.random() * dur * 0.6;
-        }
-        fadeTo(audio, TARGET_VOLUME);
-        setIsPlaying(true);
-        started = true;
-      } catch {}
-    };
-
-    // Try immediately (works if user already interacted)
-    tryPlay();
-
-    // Also listen for any user gesture
-    const handler = () => {
-      tryPlay();
-      if (started) {
-        window.removeEventListener("click", handler);
-        window.removeEventListener("touchstart", handler);
-      }
-    };
-    window.addEventListener("click", handler);
-    window.addEventListener("touchstart", handler);
-
-    return () => {
-      window.removeEventListener("click", handler);
-      window.removeEventListener("touchstart", handler);
-    };
-  }, [fadeTo]);
+    playTrack(audio, unmutedRef.current);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [trackIndex]);
 
   const togglePlay = async () => {
     const audio = audioRef.current;
     if (!audio) return;
     if (isPlaying) {
-      fadeTo(audio, 0, 800);
-      // Wait for fade then pause
+      unmutedRef.current = false;
+      fadeTo(audio, 0, 700);
       setTimeout(() => {
         audio.pause();
         setIsPlaying(false);
-      }, 850);
+      }, 750);
     } else {
+      unmutedRef.current = true;
       audio.volume = 0;
       await audio.play();
+      seekRandom(audio);
       fadeTo(audio, TARGET_VOLUME);
       setIsPlaying(true);
     }
