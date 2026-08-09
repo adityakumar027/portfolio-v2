@@ -163,15 +163,23 @@ main, .site-footer { position: relative; z-index: 2; }
 .capabilities h3 { margin: 0; color: var(--text); font-size: 14px; font-weight: 650; }
 .capabilities p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.55; }
 
-.contact { min-height: 78vh; padding: clamp(100px, 10vw, 160px) clamp(24px, 7vw, 112px); display: flex; flex-direction: column; justify-content: center; background: radial-gradient(circle at 75% 48%, rgba(113,245,212,.04), transparent 26%), #090b0a; }
+.contact {
+  min-height: 78vh;
+  padding: clamp(100px, 10vw, 160px) clamp(24px, 7vw, 112px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  background: radial-gradient(circle at 75% 48%, rgba(113,245,212,.06), transparent 26%), #090b0a;
+}
 .contact h2 { max-width: 900px; margin-top: 30px; font-size: clamp(56px, 7vw, 112px); }
 .contact > p:nth-of-type(2) { max-width: 520px; margin: 35px 0 0; color: var(--muted); font-size: 18px; line-height: 1.65; }
-.contact-email { width: max-content; margin-top: 55px; display: flex; align-items: center; gap: 80px; padding: 0 3px 10px; border-bottom: 1px solid var(--accent); font-size: clamp(25px, 3vw, 45px); letter-spacing: -0.03em; transition: color 280ms ease, text-shadow 280ms ease, gap 280ms ease; }
+.contact-email { width: max-content; margin-top: 55px; display: flex; align-items: center; gap: 80px; padding: 0 3px 10px; border-bottom: 1px solid var(--accent); font-size: clamp(25px, 3vw, 45px); letter-spacing: -0.03em; transition: color 280ms ease, text-shadow 280ms ease, gap 280ms ease; will-change: transform; }
 .contact-email:hover { color: var(--accent); gap: 94px; text-shadow: 0 0 28px rgba(113,245,212,.22); }
 .contact-email span { color: var(--accent); }
-.contact-links { margin-top: 90px; display: flex; gap: 30px; }
-.contact-links a { color: var(--muted); font: 500 9px var(--mono); letter-spacing: 0.07em; transition: color 250ms ease; }
-.contact-links a:hover { color: var(--accent); }
+.contact-links { margin-top: 40px; display: flex; gap: 12px; flex-wrap: wrap; }
+.contact-links a { padding: 8px 16px; background: var(--surface-glass); border: 1px solid var(--glass-border); border-radius: 20px; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); color: var(--muted); font: 500 10px var(--mono); letter-spacing: 0.06em; transition: border-color 0.3s ease, color 0.3s ease; }
+.contact-links a:hover { border-color: var(--glass-border-hover); color: var(--text); }
 .site-footer { padding: 25px clamp(24px, 4.5vw, 72px); display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--line); background: var(--bg); color: var(--dim); font: 500 8px var(--mono); letter-spacing: 0.06em; }
 
 .reveal { opacity: 0; transform: translateY(40px); }
@@ -528,7 +536,7 @@ main, .site-footer { position: relative; z-index: 2; }
   .contact { min-height: 700px; padding: 80px 20px; }
   .contact h2 { font-size: 48px; }
   .contact-email { gap: 30px; font-size: 24px; }
-  .contact-links { margin-top: 60px; flex-wrap: wrap; }
+  .contact-links { margin-top: 40px; flex-wrap: wrap; }
   .site-footer { align-items: flex-start; gap: 16px; flex-direction: column; padding-inline: 20px; }
 }
 

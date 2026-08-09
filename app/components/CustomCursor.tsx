@@ -12,6 +12,24 @@ export default function CustomCursor() {
     const handleMouseMove = (e: MouseEvent) => {
       setMouseX(e.clientX);
       setMouseY(e.clientY);
+
+      // Magnetic effect for contact email
+      const emailLink = document.querySelector(".contact-email") as HTMLElement;
+      if (emailLink) {
+        const rect = emailLink.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        const deltaX = e.clientX - centerX;
+        const deltaY = e.clientY - centerY;
+        const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+        
+        if (distance < 100) {
+          const strength = 1 - distance / 100;
+          emailLink.style.transform = `translate(${deltaX * strength * 0.3}px, ${deltaY * strength * 0.3}px)`;
+        } else {
+          emailLink.style.transform = "";
+        }
+      }
     };
 
     const handleMouseOver = (e: MouseEvent) => {
