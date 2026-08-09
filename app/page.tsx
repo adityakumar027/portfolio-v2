@@ -10,6 +10,7 @@ import ScrollProgress from "./components/ScrollProgress";
 import MetricsTicker from "./components/MetricsTicker";
 import SkillConstellation from "./components/SkillConstellation";
 import HorizontalProjects from "./components/HorizontalProjects";
+import MusicPlayer from "./components/MusicPlayer";
 import { Playfair_Display } from "next/font/google";
 
 const playfair = Playfair_Display({ 
@@ -347,6 +348,7 @@ export default function Home() {
 
       <CustomCursor />
       <ScrollProgress />
+      <MusicPlayer />
     </>
   );
 }
