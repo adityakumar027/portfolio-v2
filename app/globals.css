@@ -209,6 +209,31 @@ main, .site-footer { position: relative; z-index: 2; }
   text-transform: uppercase;
 }
 
+/* --- SKILL CONSTELLATION --- */
+.skills-constellation {
+  position: relative;
+  width: 100%;
+  min-height: 400px;
+}
+.skill-tag {
+  position: absolute;
+  padding: 6px 14px;
+  background: var(--surface-glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  font: 500 12px var(--mono);
+  color: var(--muted);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  transition: border-color 0.3s ease, color 0.3s ease;
+}
+.skill-tag:hover {
+  border-color: var(--glass-border-hover);
+  color: var(--text);
+}
+
 /* --- SCROLL PROGRESS INDICATOR --- */
 .scroll-progress {
   position: fixed;
@@ -492,6 +517,8 @@ main, .site-footer { position: relative; z-index: 2; }
   .education-meta span + span::before { width: 10px; height: 1px; margin: 0 8px 0 0; border-radius: 0; }
   .capabilities { grid-template-columns: 1fr; }
   .capabilities article { min-height: 0; padding: 22px; gap: 8px; }
+  .skills-constellation { position: static; display: flex; flex-wrap: wrap; gap: 10px; min-height: auto; }
+  .skill-tag { position: static; }
   .scale-context { display: block; margin-left: 0; margin-bottom: 50px; }
   .scale-label { margin-bottom: 24px; }
   .scale-statement { font-size: 24px; }

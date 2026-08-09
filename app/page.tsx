@@ -8,6 +8,7 @@ import { useScrollAnimation } from "./hooks/useScrollAnimation";
 import CustomCursor from "./components/CustomCursor";
 import ScrollProgress from "./components/ScrollProgress";
 import MetricsTicker from "./components/MetricsTicker";
+import SkillConstellation from "./components/SkillConstellation";
 import HorizontalProjects from "./components/HorizontalProjects";
 import { Playfair_Display } from "next/font/google";
 
@@ -309,9 +310,7 @@ export default function Home() {
                 </div>
               </div>
             </div>
-            <div className="capabilities">
-              {capabilities.map((capability) => <article className="reveal" key={capability.label}><h3>{capability.label}</h3><p>{capability.items}</p></article>)}
-            </div>
+            <SkillConstellation capabilities={capabilities} />
           </div>
         </section>
 
