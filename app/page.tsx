@@ -7,6 +7,7 @@ import { gsap } from "gsap";
 import { useScrollAnimation } from "./hooks/useScrollAnimation";
 import CustomCursor from "./components/CustomCursor";
 import ScrollProgress from "./components/ScrollProgress";
+import MetricsTicker from "./components/MetricsTicker";
 import HorizontalProjects from "./components/HorizontalProjects";
 import { Playfair_Display } from "next/font/google";
 
@@ -115,13 +116,11 @@ export default function Home() {
 
   const closeMenu = () => setMenuOpen(false);
 
-  const metricsRef = useRef<HTMLElement>(null);
   const experienceRef = useRef<HTMLElement>(null);
   const scaleRef = useRef<HTMLElement>(null);
   const skillsRef = useRef<HTMLElement>(null);
   const contactRef = useRef<HTMLElement>(null);
 
-  useScrollAnimation(metricsRef, { stagger: 0.1 });
   useScrollAnimation(experienceRef, { stagger: 0.12 });
   useScrollAnimation(scaleRef, { stagger: 0.1 });
   useScrollAnimation(skillsRef, { selector: ".capabilities article", stagger: 0.08 });
@@ -237,22 +236,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="section impact-metrics" id="metrics" ref={metricsRef}>
-          <div className="hero-proof reveal" aria-label="Selected career metrics">
-            <article><strong>1,200+</strong><span><em>Coding problems</em> solved</span></article>
-            <article><strong>50+</strong><span>Production <em>APIs shipped</em></span></article>
-            <article><strong>80%+</strong><span>Failures <em>auto-resolved</em></span></article>
-            <article><strong>Millions+</strong><span>Users served by <em>production services</em></span></article>
-          </div>
-          <nav className="hero-profiles reveal" aria-label="Professional profiles">
-            {achievements.map((achievement) => (
-              <a href={achievement.href} target="_blank" rel="noreferrer" key={achievement.metric}>
-                <strong>{achievement.metric}</strong>
-                <span>{achievement.before}<em>{achievement.highlight}</em>{achievement.after}</span>
-              </a>
-            ))}
-          </nav>
-        </section>
+        <MetricsTicker />
 
         <section className="section experience" id="experience" ref={experienceRef}>
           <div className="section-heading reveal">

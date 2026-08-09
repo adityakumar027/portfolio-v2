@@ -164,6 +164,39 @@ main, .site-footer { position: relative; z-index: 2; }
 
 .reveal { opacity: 0; transform: translateY(40px); }
 
+/* --- METRICS TICKER --- */
+.metrics-ticker {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  padding: clamp(40px, 5vw, 70px) 0;
+  border-bottom: 1px solid var(--line);
+  background: var(--bg);
+}
+.metrics-ticker-track {
+  display: flex;
+  gap: 24px;
+  padding: 0 clamp(24px, 7vw, 112px);
+  will-change: transform;
+}
+.metric-card {
+  flex: 0 0 auto;
+  min-width: 200px;
+  padding: 24px 32px;
+}
+.metric-number {
+  font: 500 clamp(28px, 2vw, 40px)/1 var(--sans);
+  color: var(--text);
+  letter-spacing: -0.04em;
+}
+.metric-label {
+  margin-top: 8px;
+  font: 500 9px var(--mono);
+  color: var(--dim);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 /* --- SCROLL PROGRESS INDICATOR --- */
 .scroll-progress {
   position: fixed;
@@ -421,6 +454,8 @@ main, .site-footer { position: relative; z-index: 2; }
   .nav-mobile { top: 68px; }
   .hero { padding: 120px 20px 40px; justify-content: center; }
   .hero-headline { font-size: clamp(40px, 13vw, 64px); line-height: 1; }
+  .metrics-ticker-track { flex-direction: column; gap: 16px; padding: 0 20px; }
+  .metric-card { min-width: 0; width: 100%; }
   .headline-line { gap: 8px; }
   .hero-bottom-grid { grid-template-columns: 1fr 1fr; gap: 32px 16px; margin-top: 60px; }
   .impact-metrics { padding: 60px 20px; }
