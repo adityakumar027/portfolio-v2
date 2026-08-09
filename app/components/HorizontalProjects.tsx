@@ -28,7 +28,6 @@ export default function HorizontalProjects({ projects }: { projects: any[] }) {
         start: "top top",
         end: () => `+=${scrollWrapper.scrollWidth}`,
         pin: true,
-        animation: tween,
         scrub: 1,
         invalidateOnRefresh: true,
       },
