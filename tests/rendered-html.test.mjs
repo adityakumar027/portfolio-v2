@@ -38,11 +38,12 @@ test("ships the portfolio assets and accessibility fallbacks", async () => {
     readFile(new URL("../public/Aditya_Kumar_Resume.pdf", import.meta.url)),
   ]);
 
-  assert.match(page, /dynamic\(\(\) => import\("\.\/components\/CoreScene"\)/);
+  assert.match(page, /dynamic\(\(\) => import\("\.\/components\/SceneCanvas"\)/);
   assert.match(page, /<main id="main">/);
-  assert.match(page, /aria-expanded=\{menuOpen\}/);
+  assert.match(page, /ReducedMotionFallback/);
   assert.match(css, /prefers-reduced-motion:\s*reduce/);
   assert.match(css, /\.core-fallback/);
+  assert.match(css, /fallback-sakura/);
   assert.match(layout, /images:\s*\["\/og\.png"\]/);
   assert.equal(resume.subarray(0, 4).toString(), "%PDF");
   await access(new URL("../public/og.png", import.meta.url));

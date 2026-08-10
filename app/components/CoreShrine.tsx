@@ -1,10 +1,9 @@
 "use client";
 
-import { Canvas, useFrame } from "@react-three/fiber";
-import { Bloom, EffectComposer, Noise, Vignette } from "@react-three/postprocessing";
-import { BlendFunction } from "postprocessing";
-import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { useFrame } from "@react-three/fiber";
+import { useMemo, useRef } from "react";
 import * as THREE from "three";
+import { useScene } from "../lib/scene";
 
 const haloVertex = `
   varying vec2 vUv;
@@ -47,9 +46,66 @@ const rimFragment = `
   }
 `;
 
-type PointerState = { current: { x: number; y: number } };
+const branchVertex = `
+  attribute float aHeight;
+  uniform float uBloom;
+  varying float vHeight;
+  void main() {
+    vHeight = aHeight;
+    vec3 pos = position;
+    float pulse = sin(vHeight * 3.0 + uBloom * 6.2831) * 0.5 + 0.5;
+    pos.y += pulse * 0.03 * uBloom;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+  }
+`;
 
-function Core({ pointer }: { pointer: PointerState }) {
+const branchFragment = `
+  uniform float uBloom;
+  varying float vHeight;
+  void main() {
+    vec3 rose = vec3(1.0, 0.42, 0.62);
+    vec3 teal = vec3(0.44, 1.0, 0.83);
+    vec3 color = mix(rose, teal, clamp(vHeight * 0.5 + 0.5, 0.0, 1.0));
+    gl_FragColor = vec4(color * (0.25 + uBloom), (0.3 + uBloom * 0.7) * 0.5);
+  }
+`;
+
+type BranchLine = { from: THREE.Vector3; to: THREE.Vector3 };
+
+function generateBranch(iterations: number, angle: number, stepLength: number, growth: number): BranchLine[] {
+  const lines: BranchLine[] = [];
+  let position = new THREE.Vector3(0, 0, 0);
+  let direction = new THREE.Vector3(0, 1, 0);
+
+  const draw = (depth: number) => {
+    if (depth === 0) {
+      const from = position.clone();
+      const to = position.clone().addScaledVector(direction, stepLength);
+      lines.push({ from, to });
+      position.copy(to);
+      return;
+    }
+    const saved = { position: position.clone(), direction: direction.clone() };
+    draw(depth - 1);
+    const left = saved.direction.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), angle * 0.4);
+    const right = saved.direction.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), -angle * 0.4);
+    const branchLen = stepLength / growth;
+    position.copy(saved.position);
+    direction.copy(left).multiplyScalar(branchLen / stepLength);
+    draw(depth - 1);
+    position.copy(saved.position);
+    direction.copy(right).multiplyScalar(branchLen / stepLength);
+    draw(depth - 1);
+    position.copy(saved.position);
+    direction.copy(saved.direction);
+  };
+
+  draw(iterations);
+  return lines;
+}
+
+export default function CoreShrine() {
+  const store = useScene();
   const group = useRef<THREE.Group>(null);
   const body = useRef<THREE.Mesh>(null);
   const shell = useRef<THREE.Mesh>(null);
@@ -57,20 +113,44 @@ function Core({ pointer }: { pointer: PointerState }) {
   const hoverLight = useRef<THREE.PointLight>(null);
   const bodyMaterial = useRef<THREE.MeshPhysicalMaterial>(null);
   const shellMaterial = useRef<THREE.MeshStandardMaterial>(null);
+  const branchMaterial = useRef<THREE.ShaderMaterial>(null);
   const targetScale = useMemo(() => new THREE.Vector3(), []);
+
+  const branchGeometry = useMemo(() => {
+    const lines = generateBranch(4, 0.52, 1.35, 1.75);
+    const count = lines.length;
+    const positions = new Float32Array(count * 2 * 3);
+    const heights = new Float32Array(count * 2);
+    lines.forEach((line, index) => {
+      positions[index * 6] = line.from.x;
+      positions[index * 6 + 1] = line.from.y;
+      positions[index * 6 + 2] = line.from.z;
+      positions[index * 6 + 3] = line.to.x;
+      positions[index * 6 + 4] = line.to.y;
+      positions[index * 6 + 5] = line.to.z;
+      heights[index * 2] = line.from.y * 0.35;
+      heights[index * 2 + 1] = line.to.y * 0.35;
+    });
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute("aHeight", new THREE.BufferAttribute(heights, 1));
+    return geometry;
+  }, []);
 
   useFrame((state, delta) => {
     if (!group.current || !body.current || !shell.current || !rings.current || !hoverLight.current || !bodyMaterial.current || !shellMaterial.current) return;
     const time = state.clock.elapsedTime;
-    const pointerX = pointer.current.x;
-    const pointerY = pointer.current.y;
-    const corePointerX = pointerX - 0.58;
-    const corePointerY = pointerY - 0.02;
+    const pointerX = store.current.pointerX;
+    const pointerY = store.current.pointerY;
+    const nearShrine = store.current.cameraZ < -105 && store.current.cameraZ > -225;
+    const corePointerX = (pointerX - 0.55) * (nearShrine ? 1 : 0.18);
+    const corePointerY = (pointerY - 0.02) * (nearShrine ? 1 : 0.18);
     const pointerDistance = Math.sqrt((corePointerX / 0.55) ** 2 + (corePointerY / 0.72) ** 2);
     const hover = THREE.MathUtils.clamp(1 - pointerDistance, 0, 1);
+    store.current.bloom = THREE.MathUtils.lerp(store.current.bloom, hover, 0.1);
+
     group.current.position.y = Math.sin(time * 0.38) * 0.045;
-    group.current.rotation.x = corePointerY * 0.018;
-    group.current.rotation.y = corePointerX * 0.026;
+    group.current.rotation.y = Math.sin(time * 0.1) * 0.08;
     targetScale.setScalar(0.84 + hover * 0.014);
     group.current.scale.lerp(targetScale, 1 - Math.exp(-delta * 5));
     body.current.rotation.y += delta * 0.045;
@@ -82,14 +162,32 @@ function Core({ pointer }: { pointer: PointerState }) {
     bodyMaterial.current.emissiveIntensity = THREE.MathUtils.lerp(bodyMaterial.current.emissiveIntensity, 0.2 + hover * 0.16, 0.1);
     shellMaterial.current.emissiveIntensity = THREE.MathUtils.lerp(shellMaterial.current.emissiveIntensity, 0.72 + hover * 0.48, 0.1);
     shellMaterial.current.opacity = THREE.MathUtils.lerp(shellMaterial.current.opacity, 0.22 + hover * 0.08, 0.1);
+    if (branchMaterial.current) {
+      branchMaterial.current.uniforms.uBloom.value += (hover - branchMaterial.current.uniforms.uBloom.value) * 0.08;
+    }
   });
 
   return (
-    <group ref={group} position={[2.82, 0.06, 0]} scale={0.84}>
+    <group position={[0, 4.6, -160]}>
       <mesh position={[0, 0, -1.5]} scale={[5.8, 5.8, 1]} renderOrder={-2}>
         <planeGeometry args={[1, 1]} />
         <shaderMaterial vertexShader={haloVertex} fragmentShader={haloFragment} transparent depthWrite={false} depthTest={false} blending={THREE.AdditiveBlending} />
       </mesh>
+
+      <group position={[0, -1.9, 0]}>
+        <lineSegments geometry={branchGeometry} renderOrder={-1}>
+          <shaderMaterial
+            ref={branchMaterial}
+            vertexShader={branchVertex}
+            fragmentShader={branchFragment}
+            uniforms={{ uBloom: { value: 0.2 } }}
+            transparent
+            depthWrite={false}
+            blending={THREE.AdditiveBlending}
+          />
+        </lineSegments>
+        <pointLight position={[0, 1.6, 0.6]} color="#ff6b9d" intensity={2.2} distance={9} decay={2} />
+      </group>
 
       <group ref={rings} rotation={[1.05, 0.2, 0.1]}>
         {[1.96, 2.26].map((radius, index) => (
@@ -114,92 +212,8 @@ function Core({ pointer }: { pointer: PointerState }) {
         <icosahedronGeometry args={[1, 2]} />
         <shaderMaterial vertexShader={rimVertex} fragmentShader={rimFragment} transparent depthWrite={false} blending={THREE.AdditiveBlending} />
       </mesh>
+
       <pointLight ref={hoverLight} position={[1.7, 1.2, 2.4]} color="#eafffa" intensity={5} distance={5.5} decay={2} />
     </group>
-  );
-}
-
-function Particles() {
-  const points = useRef<THREE.Points>(null);
-  const positions = useMemo(() => {
-    const data = new Float32Array(96 * 3);
-    let seed = 901;
-    const random = () => ((seed = (seed * 9301 + 49297) % 233280) / 233280);
-    for (let index = 0; index < data.length; index += 3) {
-      data[index] = (random() - 0.5) * 17;
-      data[index + 1] = (random() - 0.5) * 9;
-      data[index + 2] = (random() - 0.5) * 8 - 1;
-    }
-    return data;
-  }, []);
-
-  useFrame((_, delta) => {
-    if (points.current) points.current.rotation.y += delta * 0.004;
-  });
-
-  return (
-    <points ref={points}>
-      <bufferGeometry><bufferAttribute attach="attributes-position" args={[positions, 3]} /></bufferGeometry>
-      <pointsMaterial color="#a6f9e4" size={0.017} transparent opacity={0.22} depthWrite={false} sizeAttenuation />
-    </points>
-  );
-}
-
-function Scene({ pointer }: { pointer: PointerState }) {
-  return (
-    <>
-      <fog attach="fog" args={["#070908", 6, 13]} />
-      <ambientLight intensity={0.06} color="#b9fff0" />
-      <spotLight position={[-4, 5, 5]} color="#f0fffb" intensity={24} angle={0.4} penumbra={0.95} distance={15} decay={2} />
-      <pointLight position={[4, -2, 3]} color="#1e7868" intensity={5} distance={10} decay={2} />
-      <spotLight position={[4, 3, -3]} color="#71f5d4" intensity={38} angle={0.55} penumbra={1} distance={14} decay={2} />
-      <Core pointer={pointer} />
-      <Particles />
-      <EffectComposer multisampling={0} resolutionScale={0.8}>
-        <Bloom intensity={0.38} luminanceThreshold={0.76} luminanceSmoothing={0.2} mipmapBlur />
-        <Noise opacity={0.018} blendFunction={BlendFunction.SOFT_LIGHT} />
-        <Vignette eskil={false} offset={0.2} darkness={0.58} />
-      </EffectComposer>
-    </>
-  );
-}
-
-export default function CoreScene() {
-  const [enabled] = useState(() => typeof window !== "undefined" && innerWidth > 980 && !matchMedia("(prefers-reduced-motion: reduce)").matches);
-  const [ready, setReady] = useState(false);
-  const pointer = useRef({ x: 0, y: 0 });
-
-  useEffect(() => {
-    const trackPointer = (event: PointerEvent) => {
-      pointer.current.x = (event.clientX / innerWidth) * 2 - 1;
-      pointer.current.y = -(event.clientY / innerHeight) * 2 + 1;
-    };
-    addEventListener("pointermove", trackPointer, { passive: true });
-    return () => removeEventListener("pointermove", trackPointer);
-  }, []);
-
-  if (!enabled) return <div className="core-fallback" aria-hidden="true" />;
-
-  return (
-    <>
-      <div className={ready ? "scene-loader is-ready" : "scene-loader"} aria-hidden="true">
-        <span>INITIALIZING CORE</span><div><i style={{ transform: `scaleX(${ready ? 1 : 0.35})` }} /></div>
-      </div>
-      <div className="webgl-layer" aria-hidden="true">
-        <Canvas
-          camera={{ position: [0, 0, 7.4], fov: 43 }}
-          dpr={[1, 1.25]}
-          gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
-          onCreated={({ gl }) => {
-            gl.toneMapping = THREE.ACESFilmicToneMapping;
-            gl.toneMappingExposure = 0.95;
-            gl.outputColorSpace = THREE.SRGBColorSpace;
-            requestAnimationFrame(() => setReady(true));
-          }}
-        >
-          <Suspense fallback={null}><Scene pointer={pointer} /></Suspense>
-        </Canvas>
-      </div>
-    </>
   );
 }
