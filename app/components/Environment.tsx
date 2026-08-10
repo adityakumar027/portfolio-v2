@@ -72,6 +72,7 @@ function makeWindowTexture(): THREE.CanvasTexture {
 const scratchMatrix = new THREE.Matrix4();
 const scratchScale = new THREE.Vector3();
 const scratchPos = new THREE.Vector3();
+const scratchQuat = new THREE.Quaternion();
 
 export default function Environment() {
   const store = useScene();
@@ -100,7 +101,7 @@ export default function Environment() {
     data.buildings.forEach((building, index) => {
       scratchPos.set(building.x, building.height / 2, building.z);
       scratchScale.set(building.width, building.height, building.depth);
-      scratchMatrix.compose(scratchPos, THREE.Quaternion.IDENTITY, scratchScale);
+      scratchMatrix.compose(scratchPos, scratchQuat, scratchScale);
       mesh.setMatrixAt(index, scratchMatrix);
     });
     mesh.instanceMatrix.needsUpdate = true;
@@ -119,7 +120,7 @@ export default function Environment() {
     data.lanterns.forEach((lantern, index) => {
       scratchPos.set(lantern.x, lantern.y, lantern.z);
       scratchScale.setScalar(1);
-      scratchMatrix.compose(scratchPos, THREE.Quaternion.IDENTITY, scratchScale);
+      scratchMatrix.compose(scratchPos, scratchQuat, scratchScale);
       mesh.setMatrixAt(index, scratchMatrix);
     });
     mesh.instanceMatrix.needsUpdate = true;

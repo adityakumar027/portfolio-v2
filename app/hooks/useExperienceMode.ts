@@ -10,7 +10,8 @@ export function useExperienceMode(): ExperienceMode {
   useEffect(() => {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const narrow = window.innerWidth < 768;
-    const weak = navigator.deviceMemory !== undefined && navigator.deviceMemory < 4;
+    const dm = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
+    const weak = dm !== undefined && dm < 4;
     if (!reduced && !narrow && !weak) setMode("full");
   }, []);
 

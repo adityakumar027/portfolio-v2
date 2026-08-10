@@ -80,10 +80,10 @@ export default function PetalSystem() {
   const geometry = useRef<THREE.BufferGeometry>(null);
 
   const petals = useMemo(() => {
+    const dm = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
     const isLowPower =
       typeof navigator !== "undefined" &&
-      (typeof window === "undefined" || window.innerWidth < 980 ||
-        (navigator.deviceMemory !== undefined && navigator.deviceMemory < 8));
+      (typeof window === "undefined" || window.innerWidth < 980 || (dm !== undefined && dm < 8));
     return createPetals(isLowPower ? 5200 : 15000, 0);
   }, []);
 

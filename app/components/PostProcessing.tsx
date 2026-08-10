@@ -2,7 +2,7 @@
 
 import { Bloom, ChromaticAberration, EffectComposer, Noise, Vignette } from "@react-three/postprocessing";
 import { useFrame } from "@react-three/fiber";
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, type ReactElement } from "react";
 import { BlendFunction } from "postprocessing";
 import { useScene } from "../lib/scene";
 
@@ -22,14 +22,18 @@ export default function PostProcessing() {
     typeof navigator !== "undefined" &&
     typeof window !== "undefined" &&
     window.innerWidth < 980 &&
-    (navigator.deviceMemory === undefined || navigator.deviceMemory < 8);
+    ((navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? 16) < 8;
 
   return (
     <EffectComposer multisampling={0} resolutionScale={lowPower ? 0.55 : 0.8}>
-      {!lowPower && <Bloom intensity={0.35} luminanceThreshold={0.78} luminanceSmoothing={0.2} mipmapBlur />}
-      <ChromaticAberration ref={chromatic as never} offset={baseOffset} radialModulation={false} modulationOffset={0} />
-      <Noise opacity={0.018} blendFunction={BlendFunction.SOFT_LIGHT} />
-      <Vignette eskil={false} offset={0.22} darkness={0.52} />
+      {[
+        !lowPower && (
+          <Bloom key="bloom" intensity={0.35} luminanceThreshold={0.78} luminanceSmoothing={0.2} mipmapBlur />
+        ),
+        <ChromaticAberration key="ca" ref={chromatic as never} offset={baseOffset} radialModulation={false} modulationOffset={0} />,
+        <Noise key="noise" opacity={0.018} blendFunction={BlendFunction.SOFT_LIGHT} />,
+        <Vignette key="vignette" eskil={false} offset={0.22} darkness={0.52} />,
+      ].filter(Boolean) as ReactElement[]}
     </EffectComposer>
   );
 }
