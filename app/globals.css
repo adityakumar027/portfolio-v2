@@ -83,12 +83,10 @@ button { color: inherit; font: inherit; }
 .core-fallback::after {
   content: "";
   position: absolute;
-  inset: 13%;
-  border: 1px dashed rgba(113, 245, 212, 0.3);
+  inset: 16%;
+  border: 1px solid rgba(113,245,212,.2);
   border-radius: 50%;
-  animation: coreSpin 36s linear infinite;
 }
-@keyframes coreSpin { to { transform: rotate(360deg); } }
 @keyframes coreBreath { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.035); } }
 
 main, .site-footer { position: relative; z-index: 2; }
