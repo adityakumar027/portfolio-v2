@@ -15,12 +15,18 @@ import BeaconPulse from "./BeaconPulse";
 import ZoneManager from "./ZoneManager";
 
 type SceneCanvasProps = {
-  progressRef: { current: number };
-  velocityRef: { current: number };
-  onZoneChange: (zone: ZoneId) => void;
+  progressRef?: { current: number };
+  velocityRef?: { current: number };
+  onZoneChange?: (zone: ZoneId) => void;
 };
 
 export default function SceneCanvas({ progressRef, velocityRef, onZoneChange }: SceneCanvasProps) {
+  const defaultProgressRef = { current: 0 };
+  const defaultVelocityRef = { current: 0 };
+  const defaultOnZoneChange = () => {};
+  const prog = progressRef ?? defaultProgressRef;
+  const vel = velocityRef ?? defaultVelocityRef;
+  const onChange = onZoneChange ?? defaultOnZoneChange;
   const store = useRef(defaultSceneStore());
   const journey = useMemo(() => createJourney(), []);
   const [ready, setReady] = useState(false);
@@ -37,8 +43,8 @@ export default function SceneCanvas({ progressRef, velocityRef, onZoneChange }: 
   useEffect(() => {
     let frame = 0;
     const tick = () => {
-      store.current.t = progressRef.current;
-      store.current.velocity = velocityRef.current;
+      store.current.t = prog.current;
+      store.current.velocity = vel.current;
       frame = requestAnimationFrame(tick);
     };
     frame = requestAnimationFrame(tick);
@@ -65,7 +71,7 @@ export default function SceneCanvas({ progressRef, velocityRef, onZoneChange }: 
             <PetalSystem />
             <CoreShrine />
             <BeaconPulse />
-            <ZoneManager onZoneChange={onZoneChange} />
+            <ZoneManager onZoneChange={onChange} />
             <PostProcessing />
           </Suspense>
         </Canvas>
