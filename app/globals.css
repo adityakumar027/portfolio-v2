@@ -86,8 +86,10 @@ button { color: inherit; font: inherit; }
   inset: 16%;
   border: 1px solid rgba(113,245,212,.2);
   border-radius: 50%;
+  animation: coreSpin 36s linear infinite;
 }
 @keyframes coreBreath { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.035); } }
+@keyframes coreSpin { to { transform: rotate(360deg); } }
 
 main, .site-footer { position: relative; z-index: 2; }
 .hero { min-height: 100svh; padding: 132px clamp(24px, 5.7vw, 92px) 42px; display: grid; grid-template-columns: minmax(0, 1.26fr) minmax(300px, 0.74fr); grid-template-rows: 1fr auto; align-items: center; border-bottom: 1px solid var(--line); position: relative; overflow: hidden; }
