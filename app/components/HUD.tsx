@@ -26,9 +26,8 @@ export default function HUD({ activeZone, progress, audioEnabled, onToggleAudio 
   }, [progress]);
 
   const jumpTo = (zone: ZoneId) => {
-    const max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
     const center = ZONES.find((entry) => entry.id === zone)?.center ?? 0;
-    window.scrollTo({ top: journey.tForZ(center) * max, behavior: "smooth" });
+    window.scrollTo({ top: journey.pxForT(journey.tForZ(center)), behavior: "smooth" });
   };
 
   return (

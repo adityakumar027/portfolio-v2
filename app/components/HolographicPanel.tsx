@@ -26,18 +26,18 @@ export default function HolographicPanel({
 }: HolographicPanelProps) {
   return (
     <group position={position}>
-      <Html center transform={false} distanceFactor={7} zIndexRange={[30, 10]}>
+      <Html transform={false} prepend={true} center zIndexRange={[30, 10]}>
         <motion.section
           className="hz-panel"
-          id={id}
+          aria-labelledby={id}
           data-zone={zone}
-          aria-label={title}
           style={width ? { width } : undefined}
           initial={{ opacity: 0, scale: 0.95, y: 18 }}
           animate={visible ? { opacity: 1, scale: 1, y: 0 } : { opacity: 0, scale: 0.95, y: 18 }}
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           aria-hidden={!visible}
         >
+          <h2 id={id} className="hz-zone-title">{title}</h2>
           {children}
         </motion.section>
       </Html>

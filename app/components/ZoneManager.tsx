@@ -18,10 +18,19 @@ type ZoneManagerProps = {
   onZoneChange: (zone: ZoneId) => void;
 };
 
+const ACTIVE_OVERLAP = 10;
+const UNMOUNT_AT = 50;
+
+function zoneVisible(cameraZ: number, from: number, to: number): boolean {
+  return cameraZ >= from - ACTIVE_OVERLAP && cameraZ <= to + ACTIVE_OVERLAP;
+}
+
 export default function ZoneManager({ onZoneChange }: ZoneManagerProps) {
   const store = useScene();
   const [activeZone, setActiveZone] = useState<ZoneId>("approach");
+  const [visibleZones, setVisibleZones] = useState<Set<ZoneId>>(new Set(["approach"]));
   const activeRef = useRef<ZoneId>("approach");
+  const visibleRef = useRef<Set<ZoneId>>(new Set(["approach"]));
 
   useEffect(() => {
     let frame = 0;
@@ -37,6 +46,29 @@ export default function ZoneManager({ onZoneChange }: ZoneManagerProps) {
         setActiveZone(zone);
         onZoneChange(zone);
       }
+
+      const mounted: Set<ZoneId> = new Set();
+      for (const entry of ZONES) {
+        const closeEnough = Math.abs(cameraZ - entry.center) <= UNMOUNT_AT;
+        if (closeEnough && zoneVisible(cameraZ, entry.from, entry.to)) mounted.add(entry.id);
+      }
+      if (mounted.size !== visibleRef.current.size) {
+        visibleRef.current = mounted;
+        setVisibleZones(mounted);
+      } else {
+        let changed = false;
+        for (const id of ZONES) {
+          if (mounted.has(id.id) !== visibleRef.current.has(id.id)) {
+            changed = true;
+            break;
+          }
+        }
+        if (changed) {
+          visibleRef.current = mounted;
+          setVisibleZones(mounted);
+        }
+      }
+
       frame = requestAnimationFrame(tick);
     };
 
@@ -44,7 +76,7 @@ export default function ZoneManager({ onZoneChange }: ZoneManagerProps) {
     return () => cancelAnimationFrame(frame);
   }, [store, onZoneChange]);
 
-  const inZone = (zone: ZoneId) => activeZone === zone;
+  const inZone = (zone: ZoneId) => visibleZones.has(zone);
 
   return (
     <>
@@ -76,14 +108,14 @@ export default function ZoneManager({ onZoneChange }: ZoneManagerProps) {
 
       <HolographicPanel zone="path" id="zone-path" title="Experience" position={[-5.6, 2.6, -80]} visible={inZone("path")} width={430}>
         <p className="hz-eyebrow">01 / Experience</p>
-        <h2 className="hz-heading">Work that reached production.</h2>
+        <h3 className="hz-heading">Work that reached production.</h3>
         <div className="hz-list">
           {experience.map((item) => (
             <article key={item.company} className="hz-entry">
               <p className="hz-meta-line">
                 <span>{item.period}</span>
               </p>
-              <h3>{item.role}</h3>
+              <h4>{item.role}</h4>
               <p className="hz-company">{item.company}</p>
               <p className="hz-summary">{item.summary}</p>
               <ul>
@@ -99,7 +131,7 @@ export default function ZoneManager({ onZoneChange }: ZoneManagerProps) {
 
       <HolographicPanel zone="path" id="zone-work" title="Selected work" position={[5.6, 2.6, -80]} visible={inZone("path")} width={430}>
         <p className="hz-eyebrow">02 / Selected work</p>
-        <h2 className="hz-heading">Built around a real engineering problem.</h2>
+        <h3 className="hz-heading">Built around a real engineering problem.</h3>
         <div className="hz-list">
           {projects.map((project) => (
             <a className="hz-entry hz-link" href={project.href} target="_blank" rel="noreferrer" key={project.index}>
@@ -107,7 +139,7 @@ export default function ZoneManager({ onZoneChange }: ZoneManagerProps) {
                 <span>{project.type}</span>
                 <span>{project.index} / 03 ↗</span>
               </p>
-              <h3>{project.title}</h3>
+              <h4>{project.title}</h4>
               <p className="hz-summary">{project.description}</p>
               <p className="hz-stack">{project.stack}</p>
             </a>
@@ -117,7 +149,7 @@ export default function ZoneManager({ onZoneChange }: ZoneManagerProps) {
 
       <HolographicPanel zone="ascent" id="zone-about" title="Profile" position={[-5.6, 2.6, -250]} visible={inZone("ascent")} width={430}>
         <p className="hz-eyebrow">03 / Profile</p>
-        <h2 className="hz-heading">Strong foundations. Production range.</h2>
+        <h3 className="hz-heading">Strong foundations. Production range.</h3>
         <p className="hz-summary">
           Integrated B.Tech IT + MBA student at IIIT Gwalior, graduating 2027 with a 7.97 CGPA. My work sits at the
           intersection of backend engineering, intelligent automation, and production operations.
@@ -138,11 +170,11 @@ export default function ZoneManager({ onZoneChange }: ZoneManagerProps) {
 
       <HolographicPanel zone="ascent" id="zone-skills" title="Skills and surfaces" position={[5.6, 2.6, -250]} visible={inZone("ascent")} width={430}>
         <p className="hz-eyebrow">04 / Capabilities</p>
-        <h2 className="hz-heading">Consumer scale, production discipline.</h2>
+        <h3 className="hz-heading">Consumer scale, production discipline.</h3>
         <div className="hz-grid">
           {capabilities.map((capability) => (
             <article key={capability.label} className="hz-cell">
-              <h3>{capability.label}</h3>
+              <h4>{capability.label}</h4>
               <p>{capability.items}</p>
             </article>
           ))}

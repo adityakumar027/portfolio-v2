@@ -1,22 +1,39 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Component, useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import HUD from "./components/HUD";
 import ReducedMotionFallback from "./components/ReducedMotionFallback";
 import { useAudio } from "./hooks/useAudio";
-import { useExperienceMode } from "./hooks/useExperienceMode";
+import { useReducedMotion } from "./hooks/useReducedMotion";
 import { useScrollProgress } from "./lib/scroll";
 import type { ZoneId } from "./lib/spline";
 
 const SceneCanvas = dynamic(() => import("./components/SceneCanvas"), { ssr: false });
 
+class CanvasBoundary extends Component<{ onFail: () => void; children: ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+
+  componentDidCatch() {
+    this.props.onFail();
+  }
+
+  render() {
+    return this.state.failed ? null : this.props.children;
+  }
+}
+
 export default function Home() {
-  const mode = useExperienceMode();
+  const mode = useReducedMotion();
   const { progress, progressRef, velocityRef } = useScrollProgress();
   const [activeZone, setActiveZone] = useState<ZoneId>("approach");
   const { enabled, toggle, rustle, ping } = useAudio();
   const pingedRef = useRef(false);
+  const [canvasFailed, setCanvasFailed] = useState(false);
 
   const handleZoneChange = useCallback((zone: ZoneId) => {
     setActiveZone(zone);
@@ -43,7 +60,7 @@ export default function Home() {
     if (activeZone !== "transmission") pingedRef.current = false;
   }, [activeZone, ping]);
 
-  if (mode === "fallback") {
+  if (mode === "fallback" || canvasFailed) {
     return <ReducedMotionFallback />;
   }
 
@@ -53,7 +70,9 @@ export default function Home() {
       <div className="site-grain" aria-hidden="true" />
       <div className="crt-scanlines" aria-hidden="true" />
       <div className="webgl-layer">
-        <SceneCanvas progressRef={progressRef} velocityRef={velocityRef} onZoneChange={handleZoneChange} />
+        <CanvasBoundary onFail={() => setCanvasFailed(true)}>
+          <SceneCanvas progressRef={progressRef} velocityRef={velocityRef} onZoneChange={handleZoneChange} />
+        </CanvasBoundary>
       </div>
       <main id="main" tabIndex={-1}>
         <div className="scroll-space" aria-hidden="true" />

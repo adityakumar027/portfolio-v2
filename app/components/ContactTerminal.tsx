@@ -34,7 +34,7 @@ export default function ContactTerminal({ zone, visible }: ContactTerminalProps)
       width={520}
     >
       <p className="hz-eyebrow">05 / Transmission</p>
-      <h2 className="hz-title">Have a difficult system to build?</h2>
+      <h3 className="hz-title">Have a difficult system to build?</h3>
       <p className="hz-body">Open to software engineering roles and ambitious technical work.</p>
 
       {sent ? (

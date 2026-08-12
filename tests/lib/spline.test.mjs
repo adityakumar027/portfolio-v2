@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { createJourney, zoneForZ } from "../app/lib/spline.ts";
+import { createJourney, zoneForZ } from "../../app/lib/spline.ts";
 
 test("zoneForZ maps camera depth to zone ids", () => {
   assert.equal(zoneForZ(0), "approach");

@@ -6,7 +6,7 @@
 
 **Architecture:** One R3F canvas; scroll drives a Catmull-Rom spline camera dolly through 5 zones (approach → path → shrine → ascent → transmission). `ZoneManager` mounts `HolographicPanel` HTML overlays per zone. GPU petal system (transform feedback, CPU fallback). `prefers-reduced-motion` / small viewport / deviceMemory → static `ReducedMotionFallback`.
 
-**Tech Stack:** Next.js 16 + vinext, React 19, @react-three/fiber 9, three 0.185, @react-three/postprocessing 3, framer-motion 13, GSAP 3.15, Geist Sans/Mono.
+**Tech Stack:** Next.js 16 + vinext, React 19, @react-three/fiber 9, three 0.185, @react-three/postprocessing 3, framer-motion 13, GSAP 3.15, Unbounded / Martian Mono / Bricolage Grotesque.
 
 ## Global Constraints
 
