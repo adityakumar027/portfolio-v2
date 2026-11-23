@@ -2785,6 +2785,7 @@ window.wshWire=wshWire;
 
 /* ---- the Washio card: its real home screen, playing. Book Now opens the vendor page ---- */
 (function(){
+  if (!ALT.wv_home_w || !ALT.wv_home || !ALT.wf_vendor) return;
   var cv='<span class="ccv wsh-ccv"><span class="cph"><video class="c1" muted loop playsinline preload="metadata" aria-hidden="true"><source src="'+ALT.wv_home_w.u+'" type="video/webm"><source src="'+ALT.wv_home.u+'" type="video/mp4"></video><img class="c2" alt="" draggable="false" src="'+ALT.wf_vendor.u+'">'+
     '<span class="trk-hot wsh-book" role="button" tabindex="0" aria-label="Book now"></span><span class="trk-hot wsh-bk" role="button" tabindex="-1" aria-label="Back to home"></span></span></span>';
   Array.prototype.forEach.call(document.querySelectorAll('#deck .card[href="/work/washio"] .card-art,#wgrid .wcard[href="/work/washio"] .top'),function(n){n.innerHTML=cv;n.classList.add("hascv");
@@ -4258,7 +4259,7 @@ if(/^#\/work\/parchi/.test(HASH())&&typeof route==="function")route();
  function toggleStack(b,on){b.classList.toggle('expanded',on);b.setAttribute('aria-expanded',String(on))}
  buttons.forEach(function(b){b.addEventListener('pointerenter',function(){if(fine.matches)toggleStack(b,true)});b.addEventListener('focus',function(){toggleStack(b,true)});b.addEventListener('blur',function(){toggleStack(b,false)});b.addEventListener('click',function(){toggleStack(b,!b.classList.contains('pinned'));b.classList.toggle('pinned',b.classList.contains('expanded'))})});
  var brand=root.querySelector('.hero-logo'),logoSource=Array.from(document.getElementById('brandCreditsTemplate').content.querySelectorAll('.brand-row img')),brandIndex=0;
- var logos=logoSource.map(function(img,i){var logo=img.cloneNode();logo.className=i?'':'current';logo.removeAttribute('width');logo.removeAttribute('height');logo.setAttribute('aria-hidden','true');logo.alt='';logo.dataset.brand=img.alt;brand.appendChild(logo);return logo});
+ var logos=logoSource.map(function(img,i){var logo=img.cloneNode();logo.className=i?'':'current';logo.removeAttribute('width');logo.removeAttribute('height');logo.setAttribute('aria-hidden','true');logo.alt='';logo.dataset.brand=img.alt;if(brand)brand.appendChild(logo);return logo});
  function media(){var play=visible&&entered&&!document.hidden&&!calm.matches;hero.classList.toggle('paused',!play)}
  function cw(d){return DOO[d[1]]?(innerWidth<=600?79:100):d[1]==='alter'?262:236}
  function layout(){
